@@ -1,0 +1,40 @@
+<mxfile host="65bd71144e">
+    <diagram id="0LwoZLLgGIM50Mqcnm14" name="Page-1">
+        <mxGraphModel dx="692" dy="571" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="base.py" style="html=1;" vertex="1" parent="1">
+                    <mxGeometry x="300" y="270" width="110" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="settings.py" style="html=1;" vertex="1" parent="1">
+                    <mxGeometry x="150" y="190" width="110" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" style="edgeStyle=none;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="4" target="2">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="base_recipebook_generator.py" style="html=1;" vertex="1" parent="1">
+                    <mxGeometry x="245" y="360" width="220" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" style="edgeStyle=none;html=1;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="8" target="4">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="template1_recipebook_generator.py" style="html=1;" vertex="1" parent="1">
+                    <mxGeometry x="170" y="490" width="200" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" style="edgeStyle=none;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.927;entryY=0.987;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="10" target="4">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="template2_recipebook_generator.py" style="html=1;" vertex="1" parent="1">
+                    <mxGeometry x="410" y="490" width="200" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" style="edgeStyle=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="12" target="2">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="writer.py" style="html=1;" vertex="1" parent="1">
+                    <mxGeometry x="20" y="360" width="110" height="50" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
