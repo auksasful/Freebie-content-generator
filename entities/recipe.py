@@ -1,0 +1,13 @@
+
+
+from typing_extensions import TypedDict
+
+
+class Recipe(TypedDict):
+  name: str
+  ingredients: list[str]
+  cooking_time: str
+  instructions: str
+  cooking_tips: str
+  health_benefits: str
+  nutritional_information: str
