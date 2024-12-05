@@ -11,11 +11,11 @@ class Writer(RecipeBook):
     def __init__(self, project_folder) -> None:
         super().__init__(project_folder)
     
-    def write_recipe_using_AI(self, prompt):
+    def write_recipe_using_AI(self, prompt, system_prompt):
         api_key = os.getenv('GOOGLE_API_KEY')
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel(model_name='gemini-1.5-pro-latest')
-        response = model.generate_content(prompt)
+        model = genai.GenerativeModel(model_name='gemini-1.5-flash', system_instruction=system_prompt)
+        response = model.generate_content([prompt, self.RECIPES_FILE_PATH])
         raw_data = response.text
         prompt = f"""
         Summarize the recipe based on the schema given.

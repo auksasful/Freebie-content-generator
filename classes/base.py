@@ -3,7 +3,7 @@ import os
 
 
 class RecipeBook:
-    RECIPES_FILE_PATH = 'recipes.json'
+    RECIPES_FILE_PATH = 'recipes.txt'
 
 
     def __init__(self, project_folder) -> None:
