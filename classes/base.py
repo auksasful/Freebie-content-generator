@@ -4,6 +4,7 @@ import os
 
 class RecipeBook:
     RECIPES_FILE_PATH = 'recipes.txt'
+    RECIPE_NAMES_FILE_PATH = 'recipe_names.txt'
 
 
     def __init__(self, project_folder) -> None:
@@ -18,7 +19,7 @@ class RecipeBook:
                 json.dump([], file)
         file_empty = os.path.exists(data_file_path) and os.stat(data_file_path).st_size == 0
 
-        if filename == self.RECIPES_FILE_PATH and not file_empty:
+        if (filename == self.RECIPES_FILE_PATH or filename == self.RECIPE_NAMES_FILE_PATH) and not file_empty:
             with open(data_file_path, 'r+', encoding='utf-8') as file:
                 file_data = json.load(file)
                 file_data.append(data)

@@ -11,3 +11,11 @@ class Recipe(TypedDict):
   cooking_tips: str
   health_benefits: str
   nutritional_information: str
+
+
+
+class RecipeName(TypedDict):
+  name: str
+
+class RecipesNames(TypedDict):
+  recipes: list[RecipeName]
