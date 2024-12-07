@@ -9,8 +9,8 @@ import os
 
 class Writer(RecipeBook):
     
-    def __init__(self, project_folder) -> None:
-        super().__init__(project_folder)
+    def __init__(self, project_folder, book) -> None:
+        super().__init__(project_folder, book)
     
     def write_recipe_titles_using_AI(self, prompt):
         api_key = os.getenv('GOOGLE_API_KEY')
@@ -32,11 +32,18 @@ class Writer(RecipeBook):
             # If parsing fails, print the error and the raw response text
             print(f"Error decoding JSON: {e}")
             print(f"Raw response text: {response.text}")
+
         self.write_json(response.text, self.RECIPE_NAMES_FILE_PATH)
+        # recipe_names = self.open_json(self.RECIPE_NAMES_FILE_PATH)
+        recipe_names = json.loads(response.text)
+        # Extract the recipe names and print each one 
+        for recipe in recipe_names['recipes']:
+            # print(recipe['name'])
+            self.initialize_page(recipe['name'])
         # return response.text
 
 
-    def write_recipe_using_AI(self, prompt, system_prompt):
+    def write_recipe_using_AI(self, prompt, system_prompt, page):
         api_key = os.getenv('GOOGLE_API_KEY')
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel(model_name='gemini-1.5-flash') #, system_instruction=system_prompt)
@@ -57,7 +64,7 @@ class Writer(RecipeBook):
             # If parsing fails, print the error and the raw response text
             print(f"Error decoding JSON: {e}")
             print(f"Raw response text: {response.text}")
-        self.write_json(response.text, self.RECIPES_FILE_PATH)
+        self.write_json(response.text, self.RECIPES_FILE_PATH, page)
 
 
 

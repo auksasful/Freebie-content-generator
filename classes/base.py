@@ -7,11 +7,17 @@ class RecipeBook:
     RECIPE_NAMES_FILE_PATH = 'recipe_names.txt'
 
 
-    def __init__(self, project_folder) -> None:
+    def __init__(self, project_folder, book) -> None:
+        self.book = book
         self.project_path = os.path.join(os.path.abspath('projects'), project_folder)
+        self.project_path = os.path.join(self.project_path, book)
+       
     
-    def write_json(self, data, filename):
-        data_file_path = os.path.join(self.project_path, filename)
+    def write_json(self, data, filename, page = ''):
+        if page != '':
+            data_file_path = os.path.join(self.project_path, page, filename)
+        else:
+            data_file_path = os.path.join(self.project_path, filename)
         file_exists = os.path.isfile(data_file_path)
         if not file_exists:
             os.makedirs(os.path.dirname(data_file_path), exist_ok=True)
@@ -30,12 +36,20 @@ class RecipeBook:
                 json.dump(data, file, indent=4)
     
 
-    def open_json(self, filename):
-        data_file_path = os.path.join(self.project_path, filename)
+    def open_json(self, filename, page = ''):
+        if page != '':
+            data_file_path = os.path.join(self.project_path, page, filename)
+        else:
+            data_file_path = os.path.join(self.project_path, filename)
         if os.path.isfile(data_file_path):
             with open(data_file_path, 'r', encoding='utf-8') as file:
                 return json.load(file)
         return None
+    
+    def initialize_page(self, page):
+        page_path = os.path.join(self.project_path, page)
+        os.makedirs(page_path, exist_ok=True)
+        return page_path
 
     def get_sheets_data(self):
         pass
