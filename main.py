@@ -8,6 +8,9 @@ from classes.writer import Writer
 from classes.base import RecipeBook
 
 from PIL import Image, ImageDraw, ImageFont
+import requests
+import time
+from datetime import datetime
 
 
 def generate_recipe_titles(writer, system_prompt):
@@ -32,12 +35,12 @@ def template_1_page_generator(image1_path, image2_path, stopwatch_path, title, t
     draw = ImageDraw.Draw(new_image)
 
     # Define fonts
-    title_font = ImageFont.truetype("brushscript.ttf", 40)
+    title_font = ImageFont.truetype("brushscript.ttf", 55)
     subtitle_font = ImageFont.truetype("georgia.ttf", 30)
     text_font = ImageFont.truetype("arial.ttf", 20)
 
     # Add title
-    draw.text((3 * width // 4 - 180, 20), title, font=title_font, fill="black")
+    draw.text((3 * width // 4 - 180, 10), title, font=title_font, fill="black")
 
     # Add time
     stopwatch = stopwatch.resize((30, 30))  # Resize the stopwatch image
@@ -84,7 +87,7 @@ def template_1_page_generator(image1_path, image2_path, stopwatch_path, title, t
     new_image.save(save_path)
 
 
-def template_2_page_generator(image1_path, image2_path, image3_path, stopwatch_path, title, time, ingredients, directions, save_path):
+def template_2_page_generator(image1_path, image2_path, image3_path, stopwatch_path, title, title2, time, ingredients, directions, save_path):
     # Load images
     image1 = Image.open(image1_path)
     image2 = Image.open(image2_path)
@@ -97,33 +100,35 @@ def template_2_page_generator(image1_path, image2_path, image3_path, stopwatch_p
     draw = ImageDraw.Draw(new_image)
 
     # Define fonts
-    title_font = ImageFont.truetype("brushscript.ttf", 40)
+    title_font = ImageFont.truetype("brushscript.ttf", 80)
+    title2_font = ImageFont.truetype("brushscript.ttf", 50)
     subtitle_font = ImageFont.truetype("georgia.ttf", 30)
     text_font = ImageFont.truetype("arial.ttf", 20)
 
     # Add title
-    draw.text((3 * width // 4 - 180, 20), title, font=title_font, fill="black")
+    draw.text((50, height // 2 - 330), title, font=title_font, fill="black")
+    draw.text((50, height // 2 - 235), title2, font=title2_font, fill="black")
 
     # Add time
     stopwatch = stopwatch.resize((30, 30))  # Resize the stopwatch image
-    new_image.paste(stopwatch, (3 * width // 4 - 180, 75))  # Paste the stopwatch image
-    draw.text((3 * width // 4 - 145, 80), time, font=text_font, fill="black")
+    new_image.paste(stopwatch, (width - 200, height // 2 - 190))  # Paste the stopwatch image
+    draw.text((width - 165, height // 2 - 185), time, font=text_font, fill="black")
 
     # Add ingredients title
-    draw.text((3 * width // 4 - 180, 120), "INGREDIENTS", font=subtitle_font, fill="black")
+    draw.text((75, height // 2 - 120), "INGREDIENTS", font=subtitle_font, fill="black")
 
     # Add ingredients list
-    y_position = 160
+    y_position = height // 2 - 80
     for ingredient in ingredients:
-        draw.text((3 * width // 4 - 180, y_position), ingredient, font=text_font, fill="black")
+        draw.text((75, y_position), ingredient, font=text_font, fill="black")
         y_position += 30
 
     # Add directions title
-    draw.text((20, height - 590), "DIRECTIONS", font=subtitle_font, fill="black")
+    draw.text((width // 2 - 50, height // 2 - 120), "DIRECTIONS", font=subtitle_font, fill="black")
 
     # Add directions text
-    y_position = height - 540
-    max_width = width // 2 - 20  # 50 percent of the page width
+    y_position = height // 2 - 80
+    max_width = width // 2 + 20  # 50 percent of the page width
 
     for direction in directions:
         lines = []
@@ -134,7 +139,7 @@ def template_2_page_generator(image1_path, image2_path, image3_path, stopwatch_p
                 line += (words.pop(0) + ' ')
             lines.append(line)
         for line in lines:
-            draw.text((20, y_position), line, font=text_font, fill="black")
+            draw.text((width // 2 - 50, y_position), line, font=text_font, fill="black")
             y_position += 30
 
 
@@ -145,21 +150,58 @@ def template_2_page_generator(image1_path, image2_path, image3_path, stopwatch_p
     # Crop 40% from top and bottom
     crop_height = int(image1.height * 0.32)
     crop_width = int(image1.width * 0.1)
+    image3_crop_height = int(image3.height * 0.4)
+    image3_crop_width = int(image3.width * 0.15)
     image1 = image1.crop((crop_width, crop_height, image1.width - crop_width, image1.height - crop_height))
     image2 = image2.crop((crop_width, crop_height, image2.width - crop_width, image2.height - crop_height))
+    image3 = image3.crop((image3_crop_width, image3_crop_height, image3.width - image3_crop_width, image3.height - image3_crop_height))
+    # Draw a line in the middle of the new image, leaving a bit of space from left and right
+    line_margin = 65
+    draw.line(
+        [(line_margin, height // 2 - 150), (width - line_margin, height // 2 - 150)],
+        fill="black",
+        width=3
+    )
+
+    draw.line(
+        [(width // 2 - 100, height // 2 - 115), (width // 2 - 100, height // 2 + 425)],
+        fill="black",
+        width=3
+    )
 
     # Resize images to take half of the page horizontally and vertically
     image1 = image1.resize((image1.width // 2 - 2 * margin, image1.height // 2))
     image2 = image2.resize((image2.width // 2 - 2 * margin, image2.height // 2))
-    image3 = image3.resize((image3.width // 2 + 200 - 2 * margin, image3.height // 2))
+    image3 = image3.resize((image3.width // 2 + 80, image3.height // 2))
 
     # Paste images with margins
     new_image.paste(image1, (margin, 0))
     new_image.paste(image2, (width // 2 + margin, 0))
-    new_image.paste(image3, (width // 4 + margin, height - image3.height - margin))
+    new_image.paste(image3, (25, height - image3.height))
 
     # Save the final image
     new_image.save(save_path)
+
+
+
+def generate_recipe_images_pollynation_ai(prompt, save_path):
+    # Format the prompt for the URL
+    formatted_prompt = prompt.replace(" ", "-")
+    url = f"https://image.pollinations.ai/prompt/{formatted_prompt}"
+
+    # Make the request to the API
+    response = requests.get(url)
+    if response.status_code == 200:
+        # Wait for the image to be generated
+        # time.sleep(10)  # Adjust the sleep time as needed
+
+        # Save the image
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        image_save_path = save_path.replace("img_", f"img_{timestamp}_")
+        with open(image_save_path, 'wb') as f:
+            f.write(response.content)
+    else:
+        print(f"Failed to generate image. Status code: {response.status_code}")
 
 
 if __name__ == "__main__":
@@ -179,6 +221,9 @@ if __name__ == "__main__":
     #     recipe_data = json.loads(recipe_text[0])
     #     print(f"{recipe_data['name']} : {recipe_data['ingredients']}")
 
+    generate_recipe_images_pollynation_ai("Creamy Pasta with sausages", "image1.png")
+    generate_recipe_images_pollynation_ai("Creamy Pasta with kebab", "image2.png")
+    generate_recipe_images_pollynation_ai("Creamy Pasta with milk", "image3.png")
 
 
     template_1_page_generator(
@@ -211,6 +256,7 @@ if __name__ == "__main__":
     image3_path="image3.png",
     stopwatch_path="stopwatch.png",
     title="Creamy Pasta",
+    title2="With delicious sauce",
     time="15 minutes",
     ingredients=[
         "100 ml milk",
