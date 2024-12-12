@@ -203,6 +203,26 @@ def generate_recipe_images_pollynation_ai(prompt, save_path):
     else:
         print(f"Failed to generate image. Status code: {response.status_code}")
 
+    # Open the saved image
+    image = Image.open(image_save_path)
+
+    # Crop 50 pixels from the bottom
+    image = image.crop((0, 0, image.width, image.height - 48))
+
+    # Calculate the new dimensions for cropping
+    width, height = image.size
+    crop_height = int((width - 170) * 1.2)
+
+    # Crop the image to the new dimensions
+    left = 85
+    top = (height - crop_height) / 2
+    right = width - 85
+    bottom = (height + crop_height) / 2
+    cropped_image = image.crop((left, top, right, bottom))
+
+    # Save the cropped image
+    cropped_image.save(image_save_path)
+
 
 if __name__ == "__main__":
     project_name = "RecipeBooks"
@@ -221,9 +241,9 @@ if __name__ == "__main__":
     #     recipe_data = json.loads(recipe_text[0])
     #     print(f"{recipe_data['name']} : {recipe_data['ingredients']}")
 
-    generate_recipe_images_pollynation_ai("Creamy Pasta with sausages", "image1.png")
-    generate_recipe_images_pollynation_ai("Creamy Pasta with kebab", "image2.png")
-    generate_recipe_images_pollynation_ai("Creamy Pasta with milk", "image3.png")
+    generate_recipe_images_pollynation_ai("Creamy Pasta with sausages from farther distance", "image1.png")
+    generate_recipe_images_pollynation_ai("Creamy Pasta with kebab in a kiosk", "image2.png")
+    generate_recipe_images_pollynation_ai("Creamy Pasta with milk a lot of milk", "image3.png")
 
 
     template_1_page_generator(
@@ -250,6 +270,7 @@ if __name__ == "__main__":
         save_path="template_1_output.png"
     )
 
+    # TODO fix the image sizes
     template_2_page_generator(
     image1_path="image1.png",
     image2_path="image2.png",
