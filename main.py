@@ -11,6 +11,7 @@ from PIL import Image, ImageDraw, ImageFont
 import requests
 import time
 from datetime import datetime
+import uuid
 
 
 def generate_recipe_titles(writer, system_prompt):
@@ -148,13 +149,10 @@ def template_2_page_generator(image1_path, image2_path, image3_path, stopwatch_p
     margin = 10
 
     # Crop 40% from top and bottom
-    crop_height = int(image1.height * 0.32)
-    crop_width = int(image1.width * 0.1)
-    image3_crop_height = int(image3.height * 0.4)
-    image3_crop_width = int(image3.width * 0.15)
-    image1 = image1.crop((crop_width, crop_height, image1.width - crop_width, image1.height - crop_height))
-    image2 = image2.crop((crop_width, crop_height, image2.width - crop_width, image2.height - crop_height))
-    image3 = image3.crop((image3_crop_width, image3_crop_height, image3.width - image3_crop_width, image3.height - image3_crop_height))
+    # crop_height = int(image1.height * 0.2)
+    # crop_width = int(image1.width * 0.1)
+    image3_crop_height = int(image3.height * 0.8)
+    image3 = image3.crop((0, image3_crop_height, image3.width, image3.height))
     # Draw a line in the middle of the new image, leaving a bit of space from left and right
     line_margin = 65
     draw.line(
@@ -170,13 +168,13 @@ def template_2_page_generator(image1_path, image2_path, image3_path, stopwatch_p
     )
 
     # Resize images to take half of the page horizontally and vertically
-    image1 = image1.resize((image1.width // 2 - 2 * margin, image1.height // 2))
-    image2 = image2.resize((image2.width // 2 - 2 * margin, image2.height // 2))
-    image3 = image3.resize((image3.width // 2 + 80, image3.height // 2))
+    image1 = image1.resize((width // 2 - 2 * margin, height // 2))
+    image2 = image2.resize((width // 2 - 2 * margin, height // 2))
+    image3 = image3.resize((image3.width + 155, image3.height))
 
     # Paste images with margins
-    new_image.paste(image1, (margin, 0))
-    new_image.paste(image2, (width // 2 + margin, 0))
+    new_image.paste(image1, (margin, -330))
+    new_image.paste(image2, (width // 2 + margin, -330))
     new_image.paste(image3, (25, height - image3.height))
 
     # Save the final image
@@ -189,39 +187,41 @@ def generate_recipe_images_pollynation_ai(prompt, save_path):
     formatted_prompt = prompt.replace(" ", "-")
     url = f"https://image.pollinations.ai/prompt/{formatted_prompt}"
 
-    # Make the request to the API
-    response = requests.get(url)
-    if response.status_code == 200:
-        # Wait for the image to be generated
-        # time.sleep(10)  # Adjust the sleep time as needed
+    while True:
+        # Make the request to the API
+        response = requests.get(url)
+        if response.status_code == 200:
+            # Wait for the image to be generated
+            # time.sleep(10)  # Adjust the sleep time as needed
 
-        # Save the image
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        image_save_path = save_path.replace("img_", f"img_{timestamp}_")
-        with open(image_save_path, 'wb') as f:
-            f.write(response.content)
-    else:
-        print(f"Failed to generate image. Status code: {response.status_code}")
+            # Save the image
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            image_save_path = save_path.replace("img_", f"img_{timestamp}_")
+            with open(image_save_path, 'wb') as f:
+                f.write(response.content)
+            # Open the saved image
+            image = Image.open(image_save_path)
 
-    # Open the saved image
-    image = Image.open(image_save_path)
+            # Crop 50 pixels from the bottom
+            image = image.crop((0, 0, image.width, image.height - 48))
 
-    # Crop 50 pixels from the bottom
-    image = image.crop((0, 0, image.width, image.height - 48))
+            # Calculate the new dimensions for cropping
+            width, height = image.size
+            crop_height = int((width - 170) * 1.2)
 
-    # Calculate the new dimensions for cropping
-    width, height = image.size
-    crop_height = int((width - 170) * 1.2)
+            # Crop the image to the new dimensions
+            left = 85
+            top = (height - crop_height) / 2
+            right = width - 85
+            bottom = (height + crop_height) / 2
+            cropped_image = image.crop((left, top, right, bottom))
 
-    # Crop the image to the new dimensions
-    left = 85
-    top = (height - crop_height) / 2
-    right = width - 85
-    bottom = (height + crop_height) / 2
-    cropped_image = image.crop((left, top, right, bottom))
-
-    # Save the cropped image
-    cropped_image.save(image_save_path)
+            # Save the cropped image
+            cropped_image.save(image_save_path)
+            break
+        else:
+            print(f"Failed to generate image. Status code: {response.status_code}. Retrying...")
+            time.sleep(5)  # Wait for 5 seconds before retrying
 
 
 if __name__ == "__main__":
@@ -241,9 +241,9 @@ if __name__ == "__main__":
     #     recipe_data = json.loads(recipe_text[0])
     #     print(f"{recipe_data['name']} : {recipe_data['ingredients']}")
 
-    generate_recipe_images_pollynation_ai("Creamy Pasta with sausages from farther distance", "image1.png")
-    generate_recipe_images_pollynation_ai("Creamy Pasta with kebab in a kiosk", "image2.png")
-    generate_recipe_images_pollynation_ai("Creamy Pasta with milk a lot of milk", "image3.png")
+    generate_recipe_images_pollynation_ai(f"Creamy Pasta with sausages from farther distance {uuid.uuid4()}", "image1.png")
+    generate_recipe_images_pollynation_ai(f"Creamy Pasta with kebab in a kiosk {uuid.uuid4()}", "image2.png")
+    generate_recipe_images_pollynation_ai(f"Entire image of pasta close view nothing but pasta {uuid.uuid4()}", "image3.png")
 
 
     template_1_page_generator(
