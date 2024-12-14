@@ -6,6 +6,9 @@ class RecipeBook:
     RECIPES_FILE_PATH = 'recipes.txt'
     RECIPE_NAMES_FILE_PATH = 'recipe_names.txt'
 
+    GENERATOR_MODE_1 = 'template_1'
+    GENERATOR_MODE_2 = 'template_2'
+
 
     def __init__(self, project_folder, book) -> None:
         self.book = book
