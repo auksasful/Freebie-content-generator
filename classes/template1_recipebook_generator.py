@@ -1,11 +1,12 @@
 
-from classes.base_recipebook_generator import BaseRecipebookGenerator
+from classes.base import RecipeBook
+
 from PIL import Image, ImageDraw, ImageFont
 
-class Template1RecipebookGenerator(BaseRecipebookGenerator):
+class Template1RecipebookGenerator(RecipeBook):
     def __init__(self, project_folder, book, template, width = 1000, height = 1200):
         template = self.GENERATOR_MODE_1
-        super().__init__(project_folder, book, template, width, height)
+        super().__init__(project_folder, book)
 
     def generate_page(self, image1_path, image2_path, stopwatch_path, title, time, ingredients, directions, save_path):
         image1, image2, stopwatch = self.load_images(image1_path, image2_path, stopwatch_path)

@@ -1,7 +1,8 @@
-from classes.base_recipebook_generator import BaseRecipebookGenerator
+from classes.base import RecipeBook
 
 
-class Template2RecipebookGenerator(BaseRecipebookGenerator):
+
+class Template2RecipebookGenerator(RecipeBook):
     def __init__(self):
         pass
 

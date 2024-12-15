@@ -4,6 +4,7 @@
 
 import json
 import os
+from classes.base_recipebook_generator import BaseRecipebookGenerator
 from classes.writer import Writer
 from classes.base import RecipeBook
 
@@ -233,69 +234,71 @@ if __name__ == "__main__":
     # generate_recipe_titles(writer, system_prompt)
     # generate_recipes(writer, system_prompt)
 
-    # recipe_book = RecipeBook(project_name, book_name)
-    # recipe_names = recipe_book.open_json(RecipeBook.RECIPE_NAMES_FILE_PATH)
-    # recipe_names = json.loads(recipe_names[0])
-    # for recipe in recipe_names['recipes']:
-    #     recipe_text = recipe_book.open_json(recipe_book.RECIPES_FILE_PATH, recipe['name'])
-    #     recipe_data = json.loads(recipe_text[0])
-    #     print(f"{recipe_data['name']} : {recipe_data['ingredients']}")
+    recipe_book = RecipeBook(project_name, book_name)
+    recipebook_generator = BaseRecipebookGenerator(project_name, book_name, RecipeBook.GENERATOR_MODE_1)
+    recipe_names = recipe_book.open_json(RecipeBook.RECIPE_NAMES_FILE_PATH)
+    recipe_names = json.loads(recipe_names[0])
+    for recipe in recipe_names['recipes']:
+        recipe_text = recipe_book.open_json(recipe_book.RECIPES_FILE_PATH, recipe['name'])
+        recipe_data = json.loads(recipe_text[0])
+        print(f"{recipe_data['name']} : {recipe_data['ingredients']}")
+        recipebook_generator.create_recipe_page(recipe_data)
 
-    generate_recipe_images_pollynation_ai(f"Creamy Pasta with sausages from farther distance {uuid.uuid4()}", "image1.png")
-    generate_recipe_images_pollynation_ai(f"Creamy Pasta with kebab in a kiosk {uuid.uuid4()}", "image2.png")
-    generate_recipe_images_pollynation_ai(f"Entire image of pasta close view nothing but pasta {uuid.uuid4()}", "image3.png")
+    # generate_recipe_images_pollynation_ai(f"Creamy Pasta with sausages from farther distance {uuid.uuid4()}", "image1.png")
+    # generate_recipe_images_pollynation_ai(f"Creamy Pasta with kebab in a kiosk {uuid.uuid4()}", "image2.png")
+    # generate_recipe_images_pollynation_ai(f"Entire image of pasta close view nothing but pasta {uuid.uuid4()}", "image3.png")
 
 
-    template_1_page_generator(
-        image1_path="image1.png",
-        image2_path="image2.png",
-        stopwatch_path="stopwatch.png",
-        title="Creamy Pasta",
-        time="15 minutes",
-        ingredients=[
-            "100 ml milk",
-            "50 g butter",
-            "3 eggs",
-            "1 tbs cocoa",
-            "2 tsp baking soda",
-            "a pinch of salt",
-            "3 eggs"
-        ],
-        directions=[
-            "1. Nunc nulla velit, feugiat vitae ex quis, lobortis porta leo.",
-            "2. Donec dictum lectus in ex accumsan sodales. Pellentesque habitant morbi tristique.",
-            "3. Nunc nulla velit, feugiat vitae ex quis, lobortis porta leo. Donec dictum lectus in ex. Luctus tristique. Nunc nulla velit, feugiat vitae ex quis, lobortis porta leo. Donec dictum lectus in ex.",
-            "4. Habitant morbi tristique. Nunc nulla velit, feugiat vitae ex quis, lobortis porta leo."
-        ],
-        save_path="template_1_output.png"
-    )
+    # template_1_page_generator(
+    #     image1_path="image1.png",
+    #     image2_path="image2.png",
+    #     stopwatch_path="stopwatch.png",
+    #     title="Creamy Pasta",
+    #     time="15 minutes",
+    #     ingredients=[
+    #         "100 ml milk",
+    #         "50 g butter",
+    #         "3 eggs",
+    #         "1 tbs cocoa",
+    #         "2 tsp baking soda",
+    #         "a pinch of salt",
+    #         "3 eggs"
+    #     ],
+    #     directions=[
+    #         "1. Nunc nulla velit, feugiat vitae ex quis, lobortis porta leo.",
+    #         "2. Donec dictum lectus in ex accumsan sodales. Pellentesque habitant morbi tristique.",
+    #         "3. Nunc nulla velit, feugiat vitae ex quis, lobortis porta leo. Donec dictum lectus in ex. Luctus tristique. Nunc nulla velit, feugiat vitae ex quis, lobortis porta leo. Donec dictum lectus in ex.",
+    #         "4. Habitant morbi tristique. Nunc nulla velit, feugiat vitae ex quis, lobortis porta leo."
+    #     ],
+    #     save_path="template_1_output.png"
+    # )
 
-    # TODO fix the image sizes
-    template_2_page_generator(
-    image1_path="image1.png",
-    image2_path="image2.png",
-    image3_path="image3.png",
-    stopwatch_path="stopwatch.png",
-    title="Creamy Pasta",
-    title2="With delicious sauce",
-    time="15 minutes",
-    ingredients=[
-        "100 ml milk",
-        "50 g butter",
-        "3 eggs",
-        "1 tbs cocoa",
-        "2 tsp baking soda",
-        "a pinch of salt",
-        "3 eggs"
-    ],
-    directions=[
-        "1. Nunc nulla velit, feugiat vitae ex quis, lobortis porta leo.",
-        "2. Donec dictum lectus in ex accumsan sodales. Pellentesque habitant morbi tristique.",
-        "3. Nunc nulla velit, feugiat vitae ex quis, lobortis porta leo. Donec dictum lectus in ex. Luctus tristique. Nunc nulla velit, feugiat vitae ex quis, lobortis porta leo. Donec dictum lectus in ex.",
-        "4. Habitant morbi tristique. Nunc nulla velit, feugiat vitae ex quis, lobortis porta leo."
-    ],
-    save_path="template_2_output.png"
-    )
+    # # TODO fix the image sizes
+    # template_2_page_generator(
+    # image1_path="image1.png",
+    # image2_path="image2.png",
+    # image3_path="image3.png",
+    # stopwatch_path="stopwatch.png",
+    # title="Creamy Pasta",
+    # title2="With delicious sauce",
+    # time="15 minutes",
+    # ingredients=[
+    #     "100 ml milk",
+    #     "50 g butter",
+    #     "3 eggs",
+    #     "1 tbs cocoa",
+    #     "2 tsp baking soda",
+    #     "a pinch of salt",
+    #     "3 eggs"
+    # ],
+    # directions=[
+    #     "1. Nunc nulla velit, feugiat vitae ex quis, lobortis porta leo.",
+    #     "2. Donec dictum lectus in ex accumsan sodales. Pellentesque habitant morbi tristique.",
+    #     "3. Nunc nulla velit, feugiat vitae ex quis, lobortis porta leo. Donec dictum lectus in ex. Luctus tristique. Nunc nulla velit, feugiat vitae ex quis, lobortis porta leo. Donec dictum lectus in ex.",
+    #     "4. Habitant morbi tristique. Nunc nulla velit, feugiat vitae ex quis, lobortis porta leo."
+    # ],
+    # save_path="template_2_output.png"
+    # )
 
 
     
