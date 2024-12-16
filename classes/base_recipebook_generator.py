@@ -24,11 +24,12 @@ class BaseRecipebookGenerator(RecipeBook):
         self.project_assets_path = os.path.join(self.project_path, 'assets')
         self.project_pages_path = os.path.join(self.project_path, 'pages')
         self.project_images_path = os.path.join(self.project_assets_path, 'images')
-        self.stopwatch_path = os.path.join('common_assets', 'stopwatch.png')
+        self.stopwatch_path = 'common_assets'
         os.makedirs(self.project_images_path, exist_ok=True)
         os.makedirs(self.project_pages_path, exist_ok=True)
         os.makedirs(self.project_assets_path, exist_ok=True)
         os.makedirs(self.stopwatch_path, exist_ok=True)
+        self.stopwatch_path = os.path.join(self.stopwatch_path, 'stopwatch.png')
 
     def create_cover_page(self):
         pass
@@ -49,11 +50,12 @@ class BaseRecipebookGenerator(RecipeBook):
 
         title1 = self.remove_symbols(recipe['name']) + str(uuid.uuid4())
         title2 = self.remove_symbols(recipe['name']) + str(uuid.uuid4())
-        image1_path = self.generate_recipe_images_pollynation_ai(title1, self.project_images_path)
-        image2_path = self.generate_recipe_images_pollynation_ai(title2, self.project_images_path)
-        recipe_generator.generate_page(image1_path, image2_path, self.stopwatch_path, recipe['name'], recipe['cooking_time'], recipe['ingredients'], recipe['instructions'], self.project_pages_path)
+        image1_path = self.generate_recipe_images_pollynation_ai(title1, recipe['name'], self.project_images_path)
+        image2_path = self.generate_recipe_images_pollynation_ai(title2, recipe['name'], self.project_images_path)
+        project_pages_path_for_image = os.path.join(self.project_pages_path, recipe['name'])
+        recipe_generator.generate_page(image1_path, image2_path, self.stopwatch_path, recipe['name'], recipe['cooking_time'], recipe['ingredients'], recipe['instructions'], project_pages_path_for_image)
         
-    def generate_recipe_images_pollynation_ai(self, prompt, save_path):
+    def generate_recipe_images_pollynation_ai(self, prompt, title_original, save_path):
         # Format the prompt for the URL
         formatted_prompt = prompt.replace(" ", "-")
         url = f"https://image.pollinations.ai/prompt/{formatted_prompt}"
@@ -67,7 +69,7 @@ class BaseRecipebookGenerator(RecipeBook):
 
                 # Save the image
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                image_save_path = os.path.join(save_path, f"img_{timestamp}.png")
+                image_save_path = os.path.join(save_path, title_original, f"img_{timestamp}.png")
                 os.makedirs(os.path.dirname(image_save_path), exist_ok=True)
                 with open(image_save_path, 'wb') as f:
                     f.write(response.content)

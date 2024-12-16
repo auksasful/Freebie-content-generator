@@ -1,4 +1,5 @@
 
+import os
 from classes.base import RecipeBook
 
 from PIL import Image, ImageDraw, ImageFont
@@ -17,6 +18,9 @@ class Template1RecipebookGenerator(RecipeBook):
         self.add_ingredients(draw, ingredients, subtitle_font, text_font, 800)
         self.add_directions(draw, directions, subtitle_font, text_font, 800, 1200)
         self.resize_and_paste_images(new_image, image1, image2, 800, 1200)
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        if not save_path.lower().endswith(('.png', '.jpg', '.jpeg')):
+            save_path += '.png'
         new_image.save(save_path)
 
     def load_images(self, image1_path, image2_path, stopwatch_path):
@@ -55,17 +59,16 @@ class Template1RecipebookGenerator(RecipeBook):
         draw.text((20, height - 590), "DIRECTIONS", font=subtitle_font, fill="black")
         y_position = height - 540
         max_width = width // 2 - 20
-        for direction in directions:
-            lines = []
-            words = direction.split()
-            while words:
-                line = ''
-                while words and draw.textbbox((0, 0), line + words[0], font=text_font)[2] <= max_width:
-                    line += (words.pop(0) + ' ')
-                lines.append(line)
-            for line in lines:
-                draw.text((20, y_position), line, font=text_font, fill="black")
-                y_position += 30
+        words = directions.split()
+        lines = []
+        while words:
+            line = ''
+            while words and draw.textbbox((0, 0), line + words[0], font=text_font)[2] <= max_width:
+                line += (words.pop(0) + ' ')
+            lines.append(line)
+        for line in lines:
+            draw.text((20, y_position), line, font=text_font, fill="black")
+            y_position += 30
 
     def resize_and_paste_images(self, new_image, image1, image2, width, height):
         image1 = image1.resize((width // 2, height // 2))
