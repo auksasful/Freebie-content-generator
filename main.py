@@ -23,7 +23,9 @@ def generate_recipes(writer, system_prompt):
     recipe_names = recipe_book.open_json(RecipeBook.RECIPE_NAMES_FILE_PATH)
     recipe_names = json.loads(recipe_names[0])
     for recipe in recipe_names['recipes']:
-        writer.write_recipe_using_AI(f"Generate one healthy recipe for {recipe['name']} that is good for quick fat loss. Include at least 2 ingredients, but no more than 5 ingredients. Provide cooking time. Provide cooking tips. Provide nutritional information. Give as much detail in each recipe as possible. Do not use fractions of numbers.", system_prompt, recipe['name'])
+        writer.write_recipe_using_AI(f"Generate one healthy recipe for {recipe['name']} that is good for quick fat loss. Include at least 2 ingredients, but no more than 5 ingredients. Provide cooking time. Provide cooking tips. Provide nutritional information. Make the instructions short but understandable. Do not use fractions of numbers.", system_prompt, recipe['name'])
+        time.sleep(10)
+        
 
 def template_1_page_generator(image1_path, image2_path, stopwatch_path, title, time, ingredients, directions, save_path):
     # Load images

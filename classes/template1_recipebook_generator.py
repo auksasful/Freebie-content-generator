@@ -5,6 +5,9 @@ from classes.base import RecipeBook
 from PIL import Image, ImageDraw, ImageFont
 
 class Template1RecipebookGenerator(RecipeBook):
+
+    RIGHT_Y_POSITION = 10
+
     def __init__(self, project_folder, book, template, width = 1000, height = 1200):
         template = self.GENERATOR_MODE_1
         super().__init__(project_folder, book)
@@ -35,40 +38,64 @@ class Template1RecipebookGenerator(RecipeBook):
         return new_image, draw
 
     def define_fonts(self):
-        title_font = ImageFont.truetype("brushscript.ttf", 55)
+        title_font = ImageFont.truetype("brushscript.ttf", 45)
         subtitle_font = ImageFont.truetype("georgia.ttf", 30)
         text_font = ImageFont.truetype("arial.ttf", 20)
         return title_font, subtitle_font, text_font
 
     def add_title(self, draw, title, title_font, width):
-        draw.text((3 * width // 4 - 180, 10), title, font=title_font, fill="black")
+            max_width = width // 2 - 20
+            words = title.split()
+            lines = []
+            while words:
+                line = ''
+                while words and draw.textbbox((0, 0), line + words[0], font=title_font)[2] <= max_width:
+                    line += (words.pop(0) + ' ')
+                lines.append(line)
+            for line in lines:
+                draw.text((3 * width // 4 - 180, self.RIGHT_Y_POSITION), line, font=title_font, fill="black")
+                self.RIGHT_Y_POSITION += 40
 
     def add_time(self, draw, stopwatch, time, text_font, new_image, width):
         stopwatch = stopwatch.resize((30, 30))
-        new_image.paste(stopwatch, (3 * width // 4 - 180, 75))
-        draw.text((3 * width // 4 - 145, 80), time, font=text_font, fill="black")
+        self.RIGHT_Y_POSITION += 10
+        new_image.paste(stopwatch, (3 * width // 4 - 180, self.RIGHT_Y_POSITION))
+        self.RIGHT_Y_POSITION += 2
+        draw.text((3 * width // 4 - 145, 110), time, font=text_font, fill="black")
 
     def add_ingredients(self, draw, ingredients, subtitle_font, text_font, width):
-        draw.text((3 * width // 4 - 180, 120), "INGREDIENTS", font=subtitle_font, fill="black")
-        y_position = 160
+        self.RIGHT_Y_POSITION += 35
+        draw.text((3 * width // 4 - 180, self.RIGHT_Y_POSITION), "INGREDIENTS", font=subtitle_font, fill="black")
+        self.RIGHT_Y_POSITION += 35
+        max_width = width // 2 - 20
         for ingredient in ingredients:
-            draw.text((3 * width // 4 - 180, y_position), ingredient, font=text_font, fill="black")
-            y_position += 30
+            words = ingredient.split()
+            lines = []
+            while words:
+                line = ''
+                while words and draw.textbbox((0, 0), line + words[0], font=text_font)[2] <= max_width:
+                    line += (words.pop(0) + ' ')
+                lines.append(line)
+            for line in lines:
+                draw.text((3 * width // 4 - 180, self.RIGHT_Y_POSITION), ingredient, font=text_font, fill="black")
+                self.RIGHT_Y_POSITION += 30
 
     def add_directions(self, draw, directions, subtitle_font, text_font, width, height):
         draw.text((20, height - 590), "DIRECTIONS", font=subtitle_font, fill="black")
         y_position = height - 540
         max_width = width // 2 - 20
-        words = directions.split()
-        lines = []
-        while words:
-            line = ''
-            while words and draw.textbbox((0, 0), line + words[0], font=text_font)[2] <= max_width:
-                line += (words.pop(0) + ' ')
-            lines.append(line)
-        for line in lines:
-            draw.text((20, y_position), line, font=text_font, fill="black")
-            y_position += 30
+        for i, direction in enumerate(directions):
+            direction = f"{i + 1}. {direction}"
+            words = direction.split()
+            lines = []
+            while words:
+                line = ''
+                while words and draw.textbbox((0, 0), line + words[0], font=text_font)[2] <= max_width:
+                    line += (words.pop(0) + ' ')
+                lines.append(line)
+            for line in lines:
+                draw.text((20, y_position), line, font=text_font, fill="black")
+                y_position += 30
 
     def resize_and_paste_images(self, new_image, image1, image2, width, height):
         image1 = image1.resize((width // 2, height // 2))

@@ -69,7 +69,8 @@ class BaseRecipebookGenerator(RecipeBook):
 
                 # Save the image
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                image_save_path = os.path.join(save_path, title_original, f"img_{timestamp}.png")
+                sanitized_title = self.remove_symbols(title_original)
+                image_save_path = os.path.join(save_path, sanitized_title, f"img_{timestamp}.png")
                 os.makedirs(os.path.dirname(image_save_path), exist_ok=True)
                 with open(image_save_path, 'wb') as f:
                     f.write(response.content)
