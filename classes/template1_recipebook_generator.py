@@ -1,5 +1,6 @@
 
 import os
+import uuid
 from classes.base import RecipeBook
 
 from PIL import Image, ImageDraw, ImageFont
@@ -22,8 +23,8 @@ class Template1RecipebookGenerator(RecipeBook):
         self.add_directions(draw, directions, subtitle_font, text_font, 800, 1200)
         self.resize_and_paste_images(new_image, image1, image2, 800, 1200)
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        if not save_path.lower().endswith(('.png', '.jpg', '.jpeg')):
-            save_path += '.png'
+        save_path = os.path.join(save_path, str(uuid.uuid4()) + '.png')
+
         new_image.save(save_path)
 
     def load_images(self, image1_path, image2_path, stopwatch_path):
@@ -61,13 +62,25 @@ class Template1RecipebookGenerator(RecipeBook):
         self.RIGHT_Y_POSITION += 10
         new_image.paste(stopwatch, (3 * width // 4 - 180, self.RIGHT_Y_POSITION))
         self.RIGHT_Y_POSITION += 2
-        draw.text((3 * width // 4 - 145, 110), time, font=text_font, fill="black")
+
+        words = time.split()
+        max_width = width // 2 - 50
+        lines = []
+        while words:
+            line = ''
+            while words and draw.textbbox((0, 0), line + words[0], font=text_font)[2] <= max_width:
+                line += (words.pop(0) + ' ')
+            lines.append(line)
+        for line in lines:
+            draw.text((3 * width // 4 - 145, self.RIGHT_Y_POSITION), line, font=text_font, fill="black")
+            self.RIGHT_Y_POSITION += 30
+        
 
     def add_ingredients(self, draw, ingredients, subtitle_font, text_font, width):
-        self.RIGHT_Y_POSITION += 35
+        self.RIGHT_Y_POSITION += 10
         draw.text((3 * width // 4 - 180, self.RIGHT_Y_POSITION), "INGREDIENTS", font=subtitle_font, fill="black")
         self.RIGHT_Y_POSITION += 35
-        max_width = width // 2 - 20
+        max_width = width // 2 - 30
         for ingredient in ingredients:
             words = ingredient.split()
             lines = []
@@ -77,7 +90,7 @@ class Template1RecipebookGenerator(RecipeBook):
                     line += (words.pop(0) + ' ')
                 lines.append(line)
             for line in lines:
-                draw.text((3 * width // 4 - 180, self.RIGHT_Y_POSITION), ingredient, font=text_font, fill="black")
+                draw.text((3 * width // 4 - 180, self.RIGHT_Y_POSITION), line, font=text_font, fill="black")
                 self.RIGHT_Y_POSITION += 30
 
     def add_directions(self, draw, directions, subtitle_font, text_font, width, height):

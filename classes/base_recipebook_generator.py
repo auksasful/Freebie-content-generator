@@ -52,8 +52,7 @@ class BaseRecipebookGenerator(RecipeBook):
         title2 = self.remove_symbols(recipe['name']) + str(uuid.uuid4())
         image1_path = self.generate_recipe_images_pollynation_ai(title1, recipe['name'], self.project_images_path)
         image2_path = self.generate_recipe_images_pollynation_ai(title2, recipe['name'], self.project_images_path)
-        project_pages_path_for_image = os.path.join(self.project_pages_path, recipe['name'])
-        recipe_generator.generate_page(image1_path, image2_path, self.stopwatch_path, recipe['name'], recipe['cooking_time'], recipe['ingredients'], recipe['instructions'], project_pages_path_for_image)
+        recipe_generator.generate_page(image1_path, image2_path, self.stopwatch_path, recipe['name'], recipe['cooking_time'], recipe['ingredients'], recipe['instructions'], self.project_pages_path)
         
     def generate_recipe_images_pollynation_ai(self, prompt, title_original, save_path):
         # Format the prompt for the URL
