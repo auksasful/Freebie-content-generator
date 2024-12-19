@@ -237,7 +237,7 @@ if __name__ == "__main__":
     # generate_recipes(writer, system_prompt)
 
     recipe_book = RecipeBook(project_name, book_name)
-    recipebook_generator = BaseRecipebookGenerator(project_name, book_name, RecipeBook.GENERATOR_MODE_1)
+    recipebook_generator = BaseRecipebookGenerator(project_name, book_name, RecipeBook.GENERATOR_MODE_2)
     recipe_names = recipe_book.open_json(RecipeBook.RECIPE_NAMES_FILE_PATH)
     recipe_names = json.loads(recipe_names[0])
     for recipe in recipe_names['recipes']:

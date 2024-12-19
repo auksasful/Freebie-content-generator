@@ -43,17 +43,28 @@ class BaseRecipebookGenerator(RecipeBook):
             recipe_generator = Template1RecipebookGenerator(self.project_assets_path, self.book, self.template, self.width, self.height)
         elif self.template == self.TEMPLATES[1]:
             from classes.template2_recipebook_generator import Template2RecipebookGenerator
-            recipe_generator = Template2RecipebookGenerator()
+            recipe_generator = Template2RecipebookGenerator(self.project_assets_path, self.book, self.template, self.width, self.height)
         else:
             raise ValueError('Invalid template')
         
+        image_prompt_default = 'Photo realistic image of a dish '
 
-        title1 = self.remove_symbols(recipe['name']) + str(uuid.uuid4())
-        title2 = self.remove_symbols(recipe['name']) + str(uuid.uuid4())
-        image1_path = self.generate_recipe_images_pollynation_ai(title1, recipe['name'], self.project_images_path)
-        image2_path = self.generate_recipe_images_pollynation_ai(title2, recipe['name'], self.project_images_path)
-        recipe_generator.generate_page(image1_path, image2_path, self.stopwatch_path, recipe['name'], recipe['cooking_time'], recipe['ingredients'], recipe['instructions'], self.project_pages_path)
-        
+        if self.template == self.TEMPLATES[0]:
+            title1 = self.remove_symbols(recipe['name']) + str(uuid.uuid4())
+            title2 = self.remove_symbols(recipe['name']) + str(uuid.uuid4())
+            image1_path = self.generate_recipe_images_pollynation_ai(image_prompt_default + title1, recipe['name'], self.project_images_path)
+            image2_path = self.generate_recipe_images_pollynation_ai(image_prompt_default + title2, recipe['name'], self.project_images_path)
+            recipe_generator.generate_page(image1_path, image2_path, self.stopwatch_path, recipe['name'], recipe['cooking_time'], recipe['ingredients'], recipe['instructions'], self.project_pages_path)
+        elif self.template == self.TEMPLATES[1]:
+            name_parts = recipe['name'].split()
+            title1 = self.remove_symbols(' '.join(name_parts[:-2]))
+            title2 = self.remove_symbols(' '.join(name_parts[-2:]))
+            image1_path = self.generate_recipe_images_pollynation_ai(image_prompt_default + recipe['name'] + str(uuid.uuid4()), recipe['name'], self.project_images_path)
+            image2_path = self.generate_recipe_images_pollynation_ai(image_prompt_default + recipe['name'] + str(uuid.uuid4()), recipe['name'], self.project_images_path)
+            image3_path = self.generate_recipe_images_pollynation_ai(image_prompt_default + recipe['name'] + str(uuid.uuid4()), recipe['name'], self.project_images_path)
+            recipe_generator.generate_page(image1_path, image2_path, image3_path, self.stopwatch_path, title1, title2, recipe['cooking_time'], recipe['ingredients'], recipe['instructions'], self.project_pages_path)
+
+
     def generate_recipe_images_pollynation_ai(self, prompt, title_original, save_path):
         # Format the prompt for the URL
         formatted_prompt = prompt.replace(" ", "-")
