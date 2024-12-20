@@ -21,8 +21,8 @@ class Template2RecipebookGenerator(RecipeBook):
         new_image, draw = self.create_blank_image(800, 1200)
         title_font, title2_font, subtitle_font, text_font = self.define_fonts()
         self.add_title(draw, title, title2, title_font, title2_font, 800)
-        self.add_time(draw, stopwatch, time, text_font, new_image, 800)
-        self.add_ingredients(draw, ingredients, subtitle_font, text_font, 800)
+        self.add_time(draw, stopwatch, time, text_font, new_image, 800, 1200)
+        self.add_ingredients(draw, ingredients, subtitle_font, text_font, 800, 1200)
         self.add_directions(draw, directions, subtitle_font, text_font, 800, 1200)
         self.resize_and_paste_images(draw, new_image, image1, image2, image3, 800, 1200)
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
@@ -74,11 +74,12 @@ class Template2RecipebookGenerator(RecipeBook):
                 draw.text((50, self.Y_POSITION), line, font=title2_font, fill="black")
                 self.Y_POSITION += 35
 
-    def add_time(self, draw, stopwatch, time, text_font, new_image, width):
+    def add_time(self, draw, stopwatch, time, text_font, new_image, width, height):
         stopwatch = stopwatch.resize((30, 30))
-        self.Y_POSITION += 10
-        new_image.paste(stopwatch, (width - 200, self.Y_POSITION))
-        self.Y_POSITION += 5
+        stopwatch_y_position = height // 2 - 210
+        # self.Y_POSITION += 10
+        new_image.paste(stopwatch, (50, stopwatch_y_position))
+        stopwatch_y_position += 5
 
         words = time.split()
         max_width = width
@@ -89,15 +90,16 @@ class Template2RecipebookGenerator(RecipeBook):
                 line += (words.pop(0) + ' ')
             lines.append(line)
         for line in lines:
-            draw.text((width - 165, self.Y_POSITION), line, font=text_font, fill="black")
-            self.Y_POSITION += 30
+            draw.text((85, stopwatch_y_position), line, font=text_font, fill="black")
+            stopwatch_y_position += 20
+            # self.Y_POSITION += 30
         
 
-    def add_ingredients(self, draw, ingredients, subtitle_font, text_font, width):
-        self.Y_POSITION += 35
+    def add_ingredients(self, draw, ingredients, subtitle_font, text_font, width, height):
+        self.Y_POSITION = height // 2 - 120
         draw.text((75, self.Y_POSITION), "INGREDIENTS", font=subtitle_font, fill="black")
         self.Y_POSITION += 40
-        max_width = width // 4 + 50
+        max_width = width // 4 + 15
         for ingredient in ingredients:
             words = ingredient.split()
             lines = []

@@ -57,8 +57,15 @@ class BaseRecipebookGenerator(RecipeBook):
             recipe_generator.generate_page(image1_path, image2_path, self.stopwatch_path, recipe['name'], recipe['cooking_time'], recipe['ingredients'], recipe['instructions'], self.project_pages_path)
         elif self.template == self.TEMPLATES[1]:
             name_parts = recipe['name'].split()
-            title1 = self.remove_symbols(' '.join(name_parts[:-2]))
-            title2 = self.remove_symbols(' '.join(name_parts[-2:]))
+            if len(name_parts) <= 3:
+                title1 = self.remove_symbols(name_parts[0])
+                title2 = self.remove_symbols(name_parts[-1])
+            elif len(name_parts) >= 7:
+                title1 = self.remove_symbols(' '.join(name_parts[:-5]))
+                title2 = self.remove_symbols(' '.join(name_parts[-5:]))
+            else:
+                title1 = self.remove_symbols(' '.join(name_parts[:-3]))
+                title2 = self.remove_symbols(' '.join(name_parts[-3:]))
             image1_path = self.generate_recipe_images_pollynation_ai(image_prompt_default + recipe['name'] + str(uuid.uuid4()), recipe['name'], self.project_images_path)
             image2_path = self.generate_recipe_images_pollynation_ai(image_prompt_default + recipe['name'] + str(uuid.uuid4()), recipe['name'], self.project_images_path)
             image3_path = self.generate_recipe_images_pollynation_ai(image_prompt_default + recipe['name'] + str(uuid.uuid4()), recipe['name'], self.project_images_path)
