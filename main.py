@@ -241,12 +241,12 @@ if __name__ == "__main__":
     recipebook_generator2 = BaseRecipebookGenerator(project_name, book_name, RecipeBook.GENERATOR_MODE_2)
     recipe_names = recipe_book.open_json(RecipeBook.RECIPE_NAMES_FILE_PATH)
     recipe_names = json.loads(recipe_names[0])
-    for recipe in recipe_names['recipes']:
+    for i, recipe in enumerate(recipe_names['recipes']):
         recipe_text = recipe_book.open_json(recipe_book.RECIPES_FILE_PATH, recipe['name'])
         recipe_data = json.loads(recipe_text[0])
         print(f"{recipe_data['name']} : {recipe_data['ingredients']}")
-        recipebook_generator2.create_recipe_page(recipe_data)
-        recipebook_generator1.create_recipe_page(recipe_data)
+        recipebook_generator2.create_recipe_page(recipe_data, i + 1)
+        recipebook_generator1.create_recipe_page(recipe_data, i + 1)
 
     # generate_recipe_images_pollynation_ai(f"Creamy Pasta with sausages from farther distance {uuid.uuid4()}", "image1.png")
     # generate_recipe_images_pollynation_ai(f"Creamy Pasta with kebab in a kiosk {uuid.uuid4()}", "image2.png")

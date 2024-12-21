@@ -16,7 +16,7 @@ class Template2RecipebookGenerator(RecipeBook):
         self.Y_POSITION = height // 2 - 330
         super().__init__(project_folder, book)
 
-    def generate_page(self, image1_path, image2_path, image3_path, stopwatch_path, title, title2, time, ingredients, directions, save_path):
+    def generate_page(self, image1_path, image2_path, image3_path, stopwatch_path, title, title2, time, ingredients, directions, save_path, page_number):
         image1, image2, image3, stopwatch = self.load_images(image1_path, image2_path, image3_path, stopwatch_path)
         new_image, draw = self.create_blank_image(800, 1200)
         title_font, title2_font, subtitle_font, text_font = self.define_fonts()
@@ -26,7 +26,7 @@ class Template2RecipebookGenerator(RecipeBook):
         self.add_directions(draw, directions, subtitle_font, text_font, 800, 1200)
         self.resize_and_paste_images(draw, new_image, image1, image2, image3, 800, 1200)
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        save_path = os.path.join(save_path, str(uuid.uuid4()) + '.png')
+        save_path = os.path.join(save_path, str(page_number) + ';' + str(uuid.uuid4()) + '.png')
 
         new_image.save(save_path)
 

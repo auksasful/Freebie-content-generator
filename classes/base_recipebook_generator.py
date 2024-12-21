@@ -37,7 +37,7 @@ class BaseRecipebookGenerator(RecipeBook):
     def create_table_of_contents(self):
         pass
 
-    def create_recipe_page(self, recipe):
+    def create_recipe_page(self, recipe, page_number=1):
         if self.template == self.TEMPLATES[0]:
             from classes.template1_recipebook_generator import Template1RecipebookGenerator
             recipe_generator = Template1RecipebookGenerator(self.project_assets_path, self.book, self.template, self.width, self.height)
@@ -48,28 +48,30 @@ class BaseRecipebookGenerator(RecipeBook):
             raise ValueError('Invalid template')
         
         image_prompt_default = 'Photo realistic image of a dish '
+        dish_placeholder = self.remove_symbols(recipe['name'])
+        image_prompt_bottom = f'Entire image of {dish_placeholder} related things close view'
 
         if self.template == self.TEMPLATES[0]:
             title1 = self.remove_symbols(recipe['name']) + str(uuid.uuid4())
             title2 = self.remove_symbols(recipe['name']) + str(uuid.uuid4())
             image1_path = self.generate_recipe_images_pollynation_ai(image_prompt_default + title1, recipe['name'], self.project_images_path)
             image2_path = self.generate_recipe_images_pollynation_ai(image_prompt_default + title2, recipe['name'], self.project_images_path)
-            recipe_generator.generate_page(image1_path, image2_path, self.stopwatch_path, recipe['name'], recipe['cooking_time'], recipe['ingredients'], recipe['instructions'], self.project_pages_path)
+            recipe_generator.generate_page(image1_path, image2_path, self.stopwatch_path, recipe['name'], recipe['cooking_time'], recipe['ingredients'], recipe['instructions'], self.project_pages_path, page_number)
         elif self.template == self.TEMPLATES[1]:
             name_parts = recipe['name'].split()
             if len(name_parts) <= 3:
-                title1 = self.remove_symbols(name_parts[0])
-                title2 = self.remove_symbols(name_parts[-1])
+                title1 = name_parts[0]
+                title2 = name_parts[-1]
             elif len(name_parts) >= 7:
-                title1 = self.remove_symbols(' '.join(name_parts[:-5]))
-                title2 = self.remove_symbols(' '.join(name_parts[-5:]))
+                title1 = ' '.join(name_parts[:-5])
+                title2 = ' '.join(name_parts[-5:])
             else:
-                title1 = self.remove_symbols(' '.join(name_parts[:-3]))
-                title2 = self.remove_symbols(' '.join(name_parts[-3:]))
-            image1_path = self.generate_recipe_images_pollynation_ai(image_prompt_default + recipe['name'] + str(uuid.uuid4()), recipe['name'], self.project_images_path)
-            image2_path = self.generate_recipe_images_pollynation_ai(image_prompt_default + recipe['name'] + str(uuid.uuid4()), recipe['name'], self.project_images_path)
-            image3_path = self.generate_recipe_images_pollynation_ai(image_prompt_default + recipe['name'] + str(uuid.uuid4()), recipe['name'], self.project_images_path)
-            recipe_generator.generate_page(image1_path, image2_path, image3_path, self.stopwatch_path, title1, title2, recipe['cooking_time'], recipe['ingredients'], recipe['instructions'], self.project_pages_path)
+                title1 = ' '.join(name_parts[:-3])
+                title2 = ' '.join(name_parts[-3:])
+            image1_path = self.generate_recipe_images_pollynation_ai(image_prompt_default + self.remove_symbols(recipe['name']) + str(uuid.uuid4()), recipe['name'], self.project_images_path)
+            image2_path = self.generate_recipe_images_pollynation_ai(image_prompt_default + self.remove_symbols(recipe['name']) + str(uuid.uuid4()), recipe['name'], self.project_images_path)
+            image3_path = self.generate_recipe_images_pollynation_ai(image_prompt_bottom + str(uuid.uuid4()), recipe['name'], self.project_images_path)
+            recipe_generator.generate_page(image1_path, image2_path, image3_path, self.stopwatch_path, title1, title2, recipe['cooking_time'], recipe['ingredients'], recipe['instructions'], self.project_pages_path, page_number)
 
 
     def generate_recipe_images_pollynation_ai(self, prompt, title_original, save_path):
