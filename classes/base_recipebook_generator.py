@@ -80,42 +80,45 @@ class BaseRecipebookGenerator(RecipeBook):
         url = f"https://image.pollinations.ai/prompt/{formatted_prompt}"
 
         while True:
-            # Make the request to the API
-            response = requests.get(url)
-            if response.status_code == 200:
-                # Wait for the image to be generated
-                # time.sleep(10)  # Adjust the sleep time as needed
+            try:
+                # Make the request to the API
+                response = requests.get(url)
+                if response.status_code == 200:
+                    # Wait for the image to be generated
+                    # time.sleep(10)  # Adjust the sleep time as needed
 
-                # Save the image
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                sanitized_title = self.remove_symbols(title_original)
-                image_save_path = os.path.join(save_path, sanitized_title, f"img_{timestamp}.png")
-                os.makedirs(os.path.dirname(image_save_path), exist_ok=True)
-                with open(image_save_path, 'wb') as f:
-                    f.write(response.content)
-                # Open the saved image
-                image = Image.open(image_save_path)
+                    # Save the image
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    sanitized_title = self.remove_symbols(title_original)
+                    image_save_path = os.path.join(save_path, sanitized_title, f"img_{timestamp}.png")
+                    os.makedirs(os.path.dirname(image_save_path), exist_ok=True)
+                    with open(image_save_path, 'wb') as f:
+                        f.write(response.content)
+                    # Open the saved image
+                    image = Image.open(image_save_path)
 
-                # Crop 50 pixels from the bottom
-                image = image.crop((0, 0, image.width, image.height - 48))
+                    # Crop 50 pixels from the bottom
+                    image = image.crop((0, 0, image.width, image.height - 48))
 
-                # Calculate the new dimensions for cropping
-                width, height = image.size
-                crop_height = int((width - 170) * 1.2)
+                    # Calculate the new dimensions for cropping
+                    width, height = image.size
+                    crop_height = int((width - 170) * 1.2)
 
-                # Crop the image to the new dimensions
-                left = 85
-                top = (height - crop_height) / 2
-                right = width - 85
-                bottom = (height + crop_height) / 2
-                cropped_image = image.crop((left, top, right, bottom))
+                    # Crop the image to the new dimensions
+                    left = 85
+                    top = (height - crop_height) / 2
+                    right = width - 85
+                    bottom = (height + crop_height) / 2
+                    cropped_image = image.crop((left, top, right, bottom))
 
-                # Save the cropped image
-                cropped_image.save(image_save_path)
-                return image_save_path
-            else:
-                print(f"Failed to generate image. Status code: {response.status_code}. Retrying...")
-                time.sleep(5)  # Wait for 5 seconds before retrying
+                    # Save the cropped image
+                    cropped_image.save(image_save_path)
+                    return image_save_path
+                else:
+                    print(f"Failed to generate image. Status code: {response.status_code}. Retrying...")
+            except requests.RequestException as e:
+                print(f"Request failed: {e}. Retrying...")
+            time.sleep(5)  # Wait for 5 seconds before retrying
 
     @staticmethod
     def remove_symbols(text): 
