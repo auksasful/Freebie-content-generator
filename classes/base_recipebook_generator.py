@@ -8,7 +8,10 @@ import uuid
 import requests
 from classes.base import RecipeBook
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageTk
+import shutil
+import tkinter as tk
+from tkinter import messagebox
 
 
 class BaseRecipebookGenerator(RecipeBook):
@@ -120,10 +123,71 @@ class BaseRecipebookGenerator(RecipeBook):
                 print(f"Request failed: {e}. Retrying...")
             time.sleep(5)  # Wait for 5 seconds before retrying
 
+    def evaluate_pages(self):
+        self.image_evaluator_app(self.project_pages_path)
+
     @staticmethod
     def remove_symbols(text): 
         # Replace non-space symbols with an empty string 
         return re.sub(r'[^\w\s]', '', text)
+    
+    @staticmethod
+    def image_evaluator_app(save_image_path):
+        source_folder = save_image_path
+        liked_target_folder = os.path.join(source_folder, 'liked_images')
+
+        # Get list of images in the source folder
+        image_files = [f for f in os.listdir(source_folder) if f.lower().endswith(('png', 'jpg', 'jpeg', 'gif', 'bmp'))]
+        
+        if not image_files:
+            messagebox.showinfo("Info", "No images found in the specified folder.")
+            return
+
+        if not os.path.exists(liked_target_folder):
+            os.makedirs(liked_target_folder)
+
+        def group_images_by_set(image_files):
+            image_sets = {}
+            for image_file in image_files:
+                set_number = image_file.split(';')[0]
+                if set_number not in image_sets:
+                    image_sets[set_number] = []
+                image_sets[set_number].append(image_file)
+            return list(image_sets.values())
+
+        image_sets = group_images_by_set(image_files)
+
+        root = tk.Tk()
+        root.title("Image Evaluator")
+
+        def show_images(image_set):
+            for widget in root.winfo_children():
+                widget.destroy()
+            for image_file in image_set:
+                image_path = os.path.join(source_folder, image_file)
+                image = Image.open(image_path)
+                image.thumbnail((600, 600))
+                photo = ImageTk.PhotoImage(image)
+                image_label = tk.Label(root, image=photo)
+                image_label.image = photo
+                image_label.pack(side=tk.LEFT)
+                image_label.bind("<Button-1>", lambda e, img_file=image_file: image_clicked(img_file))
+
+        def image_clicked(image_file):
+            image_path = os.path.join(source_folder, image_file)
+            shutil.move(image_path, os.path.join(liked_target_folder, image_file))
+            next_set()
+
+        def next_set():
+            if image_sets:
+                current_set = image_sets.pop(0)
+                show_images(current_set)
+            else:
+                messagebox.showinfo("Info", "All images have been evaluated.")
+                root.destroy()
+
+        next_set()
+        root.mainloop()
 
     def generate_page(self, image1_path, image2_path, stopwatch_path, title, time, ingredients, directions, save_path):
         raise NotImplementedError('generate_image method must be implemented in child class')
