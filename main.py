@@ -43,11 +43,13 @@ def evaluate_recipebook_pages(project_name, book_name):
     recipebook_generator = BaseRecipebookGenerator(project_name, book_name, RecipeBook.GENERATOR_MODE_1)
     recipebook_generator.evaluate_pages()
 
+def create_cover_page(project_name, book_name):
+    cover_generator = BaseRecipebookGenerator(project_name, book_name, RecipeBook.GENERATOR_MODE_1)
+    cover_generator.create_cover_page()
+
 def export_recipebook_to_pdf(project_name, book_name):
-    pass
-    # TODO
-    # recipebook_generator = BaseRecipebookGenerator(project_name, book_name, RecipeBook.GENERATOR_MODE_1)
-    # recipebook_generator.export_to_pdf()
+    recipebook_generator = BaseRecipebookGenerator(project_name, book_name, RecipeBook.GENERATOR_MODE_1)
+    recipebook_generator.export_to_pdf()
 
 
 if __name__ == "__main__":
@@ -59,8 +61,8 @@ if __name__ == "__main__":
     # generate_recipe_titles(writer, system_prompt)
     # generate_recipes(writer, system_prompt)
     # generate_recipebook_page_images(project_name, book_name)
-    # evaluate_recipebook_pages()
-
+    # create_cover_page(project_name, book_name)
+    # evaluate_recipebook_pages(project_name, book_name)
     export_recipebook_to_pdf(project_name, book_name) # TODO
 
 

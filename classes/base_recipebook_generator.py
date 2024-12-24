@@ -12,7 +12,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageTk
 import shutil
 import tkinter as tk
 from tkinter import messagebox
-
+from fpdf import FPDF
 
 class BaseRecipebookGenerator(RecipeBook):
 
@@ -24,6 +24,8 @@ class BaseRecipebookGenerator(RecipeBook):
         self.width = width
         self.height = height
         self.template = template
+        self.project_folder = project_folder
+        self.book = book
         self.project_assets_path = os.path.join(self.project_path, 'assets')
         self.project_pages_path = os.path.join(self.project_path, 'pages')
         self.project_images_path = os.path.join(self.project_assets_path, 'images')
@@ -35,7 +37,11 @@ class BaseRecipebookGenerator(RecipeBook):
         self.stopwatch_path = os.path.join(self.stopwatch_path, 'stopwatch.png')
 
     def create_cover_page(self):
-        pass
+        from classes.cover_page_generator import CoverPageGenerator
+        cover_generator = CoverPageGenerator(self.project_folder, self.book, self.width, self.height)
+        cover_image1_path = self.generate_recipe_images_pollynation_ai('Photo realistic image. Far view of ' + self.book + str(uuid.uuid4()), self.book, self.project_images_path)
+        cover_image2_path = self.generate_recipe_images_pollynation_ai('Photo realistic image. Close view of ' + self.book + str(uuid.uuid4()), self.book, self.project_images_path)
+        cover_generator.generate_cover(cover_image1_path, cover_image2_path, self.book, self.project_pages_path)
 
     def create_table_of_contents(self):
         pass
@@ -126,6 +132,41 @@ class BaseRecipebookGenerator(RecipeBook):
     def evaluate_pages(self):
         self.image_evaluator_app(self.project_pages_path)
 
+    def export_to_pdf(self):
+        # export the pages to PDF from liked_images folder
+        pdf = FPDF()
+        liked_images_folder = os.path.join(self.project_pages_path, 'liked_images')
+
+        if not os.path.exists(liked_images_folder):
+            messagebox.showinfo("Info", "No liked images found to export.")
+            return
+
+        image_files = [f for f in os.listdir(liked_images_folder) if f.lower().endswith(('png', 'jpg', 'jpeg'))]
+
+        if not image_files:
+            messagebox.showinfo("Info", "No liked images found to export.")
+            return
+
+        # Check for cover image and move it to the first place
+        cover_image = None
+        for image_file in image_files:
+            if image_file.startswith('cover;'):
+                cover_image = image_file
+                break
+
+        if cover_image:
+            image_files.remove(cover_image)
+            image_files.insert(0, cover_image)
+
+        for image_file in image_files:
+            image_path = os.path.join(liked_images_folder, image_file)
+            pdf.add_page()
+            pdf.image(image_path, x=10, y=10, w=pdf.w - 20)
+
+        output_pdf_path = os.path.join(self.project_path, 'recipe_book.pdf')
+        pdf.output(output_pdf_path)
+        messagebox.showinfo("Info", f"PDF exported successfully to {output_pdf_path}")
+
     @staticmethod
     def remove_symbols(text): 
         # Replace non-space symbols with an empty string 
@@ -159,19 +200,62 @@ class BaseRecipebookGenerator(RecipeBook):
 
         root = tk.Tk()
         root.title("Image Evaluator")
+        root.geometry("1800x1200")  # Set the window size to be 3 times bigger
+
+        canvas = tk.Canvas(root)
+        scrollbar = tk.Scrollbar(root, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas)
+
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
 
         def show_images(image_set):
-            for widget in root.winfo_children():
+            for widget in scrollable_frame.winfo_children():
                 widget.destroy()
+            row = 0
+            col = 0
             for image_file in image_set:
                 image_path = os.path.join(source_folder, image_file)
                 image = Image.open(image_path)
-                image.thumbnail((600, 600))
+                if len(image_set) > 3:
+                    image.thumbnail((300, 300))
+                else:
+                    image.thumbnail((600, 600))
                 photo = ImageTk.PhotoImage(image)
-                image_label = tk.Label(root, image=photo)
+                image_label = tk.Label(scrollable_frame, image=photo)
                 image_label.image = photo
-                image_label.pack(side=tk.LEFT)
+                image_label.grid(row=row, column=col)
                 image_label.bind("<Button-1>", lambda e, img_file=image_file: image_clicked(img_file))
+                col += 1
+                if col > 2:
+                    col = 0
+                    row += 1
+
+        def image_clicked(image_file):
+            image_path = os.path.join(source_folder, image_file)
+            shutil.move(image_path, os.path.join(liked_target_folder, image_file))
+            next_set()
+
+        def next_set():
+            if image_sets:
+                current_set = image_sets.pop(0)
+                show_images(current_set)
+            else:
+                messagebox.showinfo("Info", "All images have been evaluated.")
+                root.destroy()
+
+        next_set()
+        root.mainloop()
 
         def image_clicked(image_file):
             image_path = os.path.join(source_folder, image_file)
