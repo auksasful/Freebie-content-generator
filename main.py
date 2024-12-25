@@ -63,7 +63,7 @@ if __name__ == "__main__":
     # generate_recipebook_page_images(project_name, book_name)
     # create_cover_page(project_name, book_name)
     # evaluate_recipebook_pages(project_name, book_name)
-    export_recipebook_to_pdf(project_name, book_name) # TODO
+    export_recipebook_to_pdf(project_name, book_name)
 
 
     

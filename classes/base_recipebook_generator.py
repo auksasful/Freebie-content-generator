@@ -14,6 +14,8 @@ import tkinter as tk
 from tkinter import messagebox
 from fpdf import FPDF
 
+from classes.settings import RecipeBookSettings
+
 class BaseRecipebookGenerator(RecipeBook):
 
     TEMPLATES = ['template_1', 'template_2']
@@ -35,6 +37,7 @@ class BaseRecipebookGenerator(RecipeBook):
         os.makedirs(self.project_assets_path, exist_ok=True)
         os.makedirs(self.stopwatch_path, exist_ok=True)
         self.stopwatch_path = os.path.join(self.stopwatch_path, 'stopwatch.png')
+        self.settings = RecipeBookSettings()
 
     def create_cover_page(self):
         from classes.cover_page_generator import CoverPageGenerator
@@ -133,7 +136,14 @@ class BaseRecipebookGenerator(RecipeBook):
         self.image_evaluator_app(self.project_pages_path)
 
     def export_to_pdf(self):
-        # export the pages to PDF from liked_images folder
+
+        def add_url_to_page(pdf, url, y_pos):
+            pdf.set_y(y_pos)
+            pdf.set_font("Arial", size=12)
+            pdf.set_text_color(0, 0, 255)
+            pdf.cell(0, 10, url, 0, 1, 'C', link=url)
+
+        # Initialize PDF
         pdf = FPDF()
         liked_images_folder = os.path.join(self.project_pages_path, 'liked_images')
 
@@ -141,13 +151,14 @@ class BaseRecipebookGenerator(RecipeBook):
             messagebox.showinfo("Info", "No liked images found to export.")
             return
 
-        image_files = [f for f in os.listdir(liked_images_folder) if f.lower().endswith(('png', 'jpg', 'jpeg'))]
+        image_files = [f for f in os.listdir(liked_images_folder)
+                    if f.lower().endswith(('png', 'jpg', 'jpeg'))]
 
         if not image_files:
             messagebox.showinfo("Info", "No liked images found to export.")
             return
 
-        # Check for cover image and move it to the first place
+        # Handle cover image
         cover_image = None
         for image_file in image_files:
             if image_file.startswith('cover;'):
@@ -158,10 +169,59 @@ class BaseRecipebookGenerator(RecipeBook):
             image_files.remove(cover_image)
             image_files.insert(0, cover_image)
 
-        for image_file in image_files:
+        # Set margins
+        left_margin = right_margin = 10
+        top_margin = 10
+        bottom_margin = 10
+        pdf.set_margins(left_margin, top_margin, right_margin)
+
+        pdf_w = pdf.w - left_margin - right_margin
+        pdf_h = pdf.h - top_margin - bottom_margin
+
+        # Approximate height for URL text and space after image
+        space_after_image = 5  # Space after image
+
+        # Process images
+        for idx, image_file in enumerate(image_files):
             image_path = os.path.join(liked_images_folder, image_file)
             pdf.add_page()
-            pdf.image(image_path, x=10, y=10, w=pdf.w - 20)
+
+            # Determine whether to display URL
+            if idx == 0 and cover_image:
+                display_url = False
+                url_h = 0  # No URL on cover page
+            else:
+                display_url = True
+                url_h = 10  # Height of URL text
+
+            # Add URL if needed
+            if display_url:
+                url_y = top_margin
+                add_url_to_page(pdf, self.settings.website_url, y_pos=url_y)
+
+            # Open image to get dimensions
+            with Image.open(image_path) as img:
+                img_w_px, img_h_px = img.size
+
+            img_ratio = img_w_px / img_h_px
+
+            # Calculate max dimensions
+            max_w = pdf_w
+            max_h = pdf_h - url_h - space_after_image
+
+            # Calculate image dimensions to fit within max dimensions
+            if (max_w / img_ratio) <= max_h:
+                display_w = max_w
+                display_h = display_w / img_ratio
+            else:
+                display_h = max_h
+                display_w = display_h * img_ratio
+
+            # Center the image
+            x = (pdf.w - display_w) / 2
+            y = top_margin + url_h + ((max_h - display_h) / 2)
+
+            pdf.image(image_path, x=x, y=y, w=display_w, h=display_h)
 
         output_pdf_path = os.path.join(self.project_path, 'recipe_book.pdf')
         pdf.output(output_pdf_path)

@@ -1,68 +1,53 @@
+from fpdf import FPDF
 import os
-import shutil
-import tkinter as tk
-from PIL import Image, ImageTk
 from tkinter import messagebox
 
-def image_evaluator_app(save_image_path, backgrounds_path, backgrounds=False):
-    if backgrounds:
-        source_folder = backgrounds_path
-    else:
-        source_folder = save_image_path
-    liked_target_folder = os.path.join(source_folder, 'liked_images')
+def export_to_pdf(self):
+    def add_url_to_page(pdf, url):
+        pdf.set_font("Arial", size=12)
+        pdf.set_text_color(0, 0, 255)
+        pdf.cell(0, 10, url, 0, 1, 'C', link=url)
+        pdf.ln(5)  # Add a little space after the URL
 
-    # Get list of images in the source folder
-    image_files = [f for f in os.listdir(source_folder) if f.lower().endswith(('png', 'jpg', 'jpeg', 'gif', 'bmp'))]
-    
-    if not image_files:
-        messagebox.showinfo("Info", "No images found in the specified folder.")
+    # export the pages to PDF from liked_images folder
+    pdf = FPDF()
+    liked_images_folder = os.path.join(self.project_pages_path, 'liked_images')
+
+    if not os.path.exists(liked_images_folder):
+        messagebox.showinfo("Info", "No liked images found to export.")
         return
 
-    if not os.path.exists(liked_target_folder):
-        os.makedirs(liked_target_folder)
+    image_files = [f for f in os.listdir(liked_images_folder) if f.lower().endswith(('png', 'jpg', 'jpeg'))]
 
-    image_sets = group_images_by_set(image_files)
+    if not image_files:
+        messagebox.showinfo("Info", "No liked images found to export.")
+        return
 
-    root = tk.Tk()
-    root.title("Image Evaluator")
+    # Check for cover image and move it to the first place
+    cover_image = None
+    for image_file in image_files:
+        if image_file.startswith('cover;'):
+            cover_image = image_file
+            break
 
-    def show_images(image_set):
-        for widget in root.winfo_children():
-            widget.destroy()
-        for image_file in image_set:
-            image_path = os.path.join(source_folder, image_file)
-            image = Image.open(image_path)
-            image.thumbnail((200, 200))
-            photo = ImageTk.PhotoImage(image)
-            image_label = tk.Label(root, image=photo)
-            image_label.image = photo
-            image_label.pack(side=tk.LEFT)
-            image_label.bind("<Button-1>", lambda e, img_file=image_file: image_clicked(img_file))
+    if cover_image:
+        image_files.remove(cover_image)
+        image_files.insert(0, cover_image)
 
-    def image_clicked(image_file):
-        image_path = os.path.join(source_folder, image_file)
-        shutil.move(image_path, os.path.join(liked_target_folder, image_file))
-        next_set()
+    # Add the cover image page
+    image_path = os.path.join(liked_images_folder, image_files[0])
+    pdf.add_page()
+    pdf.image(image_path, x=10, y=10, w=pdf.w - 20)
 
-    def next_set():
-        if image_sets:
-            current_set = image_sets.pop(0)
-            show_images(current_set)
-        else:
-            messagebox.showinfo("Info", "All images have been evaluated.")
-            root.destroy()
+    # Add the rest of the images with the URL at the top of each page
+    url = "http://your-link-here.com"
+    for image_file in image_files[1:]:
+        image_path = os.path.join(liked_images_folder, image_file)
+        pdf.add_page()
+        add_url_to_page(pdf, url)
+        pdf.image(image_path, x=10, y=20, w=pdf.w - 20)  # Adjusted y to place image below URL
 
-    def group_images_by_set(image_files):
-        image_sets = {}
-        for image_file in image_files:
-            set_number = image_file.split(';')[0]
-            if set_number not in image_sets:
-                image_sets[set_number] = []
-            image_sets[set_number].append(image_file)
-        return list(image_sets.values())
+    output_pdf_path = os.path.join(self.project_path, 'recipe_book.pdf')
+    pdf.output(output_pdf_path)
+    messagebox.showinfo("Info", f"PDF exported successfully to {output_pdf_path}")
 
-    next_set()
-    root.mainloop()
-
-# Example usage:
-# image_evaluator_app(save_image_path="path/to/save_images", backgrounds_path="path/to/backgrounds", backgrounds=False)
