@@ -42,8 +42,8 @@ class BaseRecipebookGenerator(RecipeBook):
     def create_cover_page(self):
         from classes.cover_page_generator import CoverPageGenerator
         cover_generator = CoverPageGenerator(self.project_folder, self.book, self.width, self.height)
-        cover_image1_path = self.generate_recipe_images_pollynation_ai('Photo realistic image. Far view of ' + self.book + str(uuid.uuid4()), self.book, self.project_images_path)
-        cover_image2_path = self.generate_recipe_images_pollynation_ai('Photo realistic image. Close view of ' + self.book + str(uuid.uuid4()), self.book, self.project_images_path)
+        cover_image1_path = self.generate_recipe_images_pollynation_ai(self.settings.cover_page_image1_prompt + self.book + str(uuid.uuid4()), self.book, self.project_images_path)
+        cover_image2_path = self.generate_recipe_images_pollynation_ai(self.settings.cover_page_image2_prompt + self.book + str(uuid.uuid4()), self.book, self.project_images_path)
         cover_generator.generate_cover(cover_image1_path, cover_image2_path, self.book, self.project_pages_path)
 
     def create_table_of_contents(self):
@@ -59,9 +59,9 @@ class BaseRecipebookGenerator(RecipeBook):
         else:
             raise ValueError('Invalid template')
         
-        image_prompt_default = 'Photo realistic image of a dish '
+        image_prompt_default = self.settings.image_prompt_default
         dish_placeholder = self.remove_symbols(recipe['name'])
-        image_prompt_bottom = f'Entire image of {dish_placeholder} related things close view'
+        image_prompt_bottom = f'{self.settings.image_prompt_bottom_1} {dish_placeholder} {self.settings.image_prompt_bottom_2}'
 
         if self.template == self.TEMPLATES[0]:
             title1 = self.remove_symbols(recipe['name']) + str(uuid.uuid4())

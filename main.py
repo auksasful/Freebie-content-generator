@@ -13,17 +13,18 @@ import requests
 import time
 from datetime import datetime
 import uuid
+from classes.settings import RecipeBookSettings
 
 
-def generate_recipe_titles(writer, system_prompt):
-    writer.write_recipe_titles_using_AI("Generate a list of 20 healthy breakfast recipe titles of food that is good for quick fat loss. Each should be unique, don't repeat yourself.")
+def generate_recipe_titles(writer, prompt):
+    writer.write_recipe_titles_using_AI(prompt)
 
-def generate_recipes(writer, system_prompt):
+def generate_recipes(writer, system_prompt, prompt_1, prompt_2):
     recipe_book = RecipeBook(project_name, book_name)
     recipe_names = recipe_book.open_json(RecipeBook.RECIPE_NAMES_FILE_PATH)
     recipe_names = json.loads(recipe_names[0])
     for recipe in recipe_names['recipes']:
-        writer.write_recipe_using_AI(f"Generate one healthy recipe for {recipe['name']} that is good for quick fat loss. Include at least 2 ingredients, but no more than 5 ingredients. Provide cooking time. Provide cooking tips. Provide nutritional information. Make the instructions short but understandable. Do not use fractions of numbers.", system_prompt, recipe['name'])
+        writer.write_recipe_using_AI(f"{prompt_1} {recipe['name']} {prompt_2}", system_prompt, recipe['name'])
         time.sleep(10)
         
 def generate_recipebook_page_images(project_name, book_name):
@@ -57,13 +58,38 @@ if __name__ == "__main__":
     book_name = "Healthy Breakfast Recipes"
     print("Hello, welcome to the Freebie Content Generator!")
     writer = Writer(project_name, book_name)
-    system_prompt = ""
-    # generate_recipe_titles(writer, system_prompt)
-    # generate_recipes(writer, system_prompt)
-    # generate_recipebook_page_images(project_name, book_name)
-    # create_cover_page(project_name, book_name)
-    # evaluate_recipebook_pages(project_name, book_name)
-    export_recipebook_to_pdf(project_name, book_name)
+    settings = RecipeBookSettings()
+    system_prompt = settings.system_prompt
+
+    while True:
+        print("\nPlease select an action:")
+        print("1. Generate titles")
+        print("2. Generate the entries")
+        print("3. Generate book page images")
+        print("4. Create cover page")
+        print("5. Evaluate book pages")
+        print("6. Export book to PDF")
+        print("7. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            generate_recipe_titles(writer, settings.titles_prompt)
+        elif choice == '2':
+            generate_recipes(writer, system_prompt, settings.generation_prompt_1, settings.generation_prompt_2)
+        elif choice == '3':
+            generate_recipebook_page_images(project_name, book_name)
+        elif choice == '4':
+            create_cover_page(project_name, book_name)
+        elif choice == '5':
+            evaluate_recipebook_pages(project_name, book_name)
+        elif choice == '6':
+            export_recipebook_to_pdf(project_name, book_name)
+        elif choice == '7':
+            print("Exiting the program.")
+            break
+        else:
+            print("Invalid choice. Please try again.")
 
 
     
