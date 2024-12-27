@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 
-class Template2RecipebookGenerator(Book):
+class Template2TipsbookGenerator(Book):
 
     Y_POSITION = 10
 
@@ -16,26 +16,24 @@ class Template2RecipebookGenerator(Book):
         self.Y_POSITION = height // 2 - 330
         super().__init__(project_folder, book)
 
-    def generate_page(self, image1_path, image2_path, image3_path, stopwatch_path, title, title2, time, ingredients, directions, save_path, page_number):
-        image1, image2, image3, stopwatch = self.load_images(image1_path, image2_path, image3_path, stopwatch_path)
+    def generate_page(self, image1_path, image2_path, image3_path, title, title2, description, instructions, save_path, page_number):
+        image1, image2, image3 = self.load_images(image1_path, image2_path, image3_path)
         new_image, draw = self.create_blank_image(800, 1200)
         title_font, title2_font, subtitle_font, text_font = self.define_fonts()
         self.add_title(draw, title, title2, title_font, title2_font, 800)
-        self.add_time(draw, stopwatch, time, text_font, new_image, 800, 1200)
-        self.add_ingredients(draw, ingredients, subtitle_font, text_font, 800, 1200)
-        self.add_directions(draw, directions, subtitle_font, text_font, 800, 1200)
+        self.add_description(draw, description, subtitle_font, text_font, 800, 1200)
+        self.add_instructions(draw, instructions, subtitle_font, text_font, 800, 1200)
         self.resize_and_paste_images(draw, new_image, image1, image2, image3, 800, 1200)
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         save_path = os.path.join(save_path, str(page_number) + ';' + str(uuid.uuid4()) + '.png')
 
         new_image.save(save_path)
 
-    def load_images(self, image1_path, image2_path, image3_path, stopwatch_path):
+    def load_images(self, image1_path, image2_path, image3_path):
         image1 = Image.open(image1_path)
         image2 = Image.open(image2_path)
         image3 = Image.open(image3_path)
-        stopwatch = Image.open(stopwatch_path)
-        return image1, image2, image3, stopwatch
+        return image1, image2, image3
 
     def create_blank_image(self, width, height):
         new_image = Image.new("RGB", (width, height), "white")
@@ -73,29 +71,9 @@ class Template2RecipebookGenerator(Book):
             for line in lines:
                 draw.text((50, self.Y_POSITION), line, font=title2_font, fill="black")
                 self.Y_POSITION += 35
-
-    def add_time(self, draw, stopwatch, time, text_font, new_image, width, height):
-        stopwatch = stopwatch.resize((30, 30))
-        stopwatch_y_position = height // 2 - 210
-        # self.Y_POSITION += 10
-        new_image.paste(stopwatch, (50, stopwatch_y_position))
-        stopwatch_y_position += 5
-
-        words = time.split()
-        max_width = width
-        lines = []
-        while words:
-            line = ''
-            while words and draw.textbbox((0, 0), line + words[0], font=text_font)[2] <= max_width:
-                line += (words.pop(0) + ' ')
-            lines.append(line)
-        for line in lines:
-            draw.text((85, stopwatch_y_position), line, font=text_font, fill="black")
-            stopwatch_y_position += 20
-            # self.Y_POSITION += 30
         
 
-    def add_ingredients(self, draw, ingredients, subtitle_font, text_font, width, height):
+    def add_description(self, draw, ingredients, subtitle_font, text_font, width, height):
         self.Y_POSITION = height // 2 - 120
         draw.text((75, self.Y_POSITION), "INGREDIENTS", font=subtitle_font, fill="black")
         self.Y_POSITION += 40
@@ -112,7 +90,7 @@ class Template2RecipebookGenerator(Book):
                 draw.text((75, self.Y_POSITION), line, font=text_font, fill="black")
                 self.Y_POSITION += 30
 
-    def add_directions(self, draw, directions, subtitle_font, text_font, width, height):
+    def add_instructions(self, draw, directions, subtitle_font, text_font, width, height):
         draw.text((width // 2 - 50, height // 2 - 120), "DIRECTIONS", font=subtitle_font, fill="black")
         self.Y_POSITION = height // 2 - 80
         max_width = width // 2 + 20

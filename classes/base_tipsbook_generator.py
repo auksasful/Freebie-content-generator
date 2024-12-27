@@ -14,9 +14,9 @@ import tkinter as tk
 from tkinter import messagebox
 from fpdf import FPDF
 
-from classes.settings import RecipeBookSettings
+from classes.settings import TipsBookSettings
 
-class BaseRecipebookGenerator(Book):
+class BaseTipsbookGenerator(Book):
 
     TEMPLATES = ['template_1', 'template_2']
 
@@ -37,7 +37,7 @@ class BaseRecipebookGenerator(Book):
         os.makedirs(self.project_assets_path, exist_ok=True)
         os.makedirs(self.stopwatch_path, exist_ok=True)
         self.stopwatch_path = os.path.join(self.stopwatch_path, 'stopwatch.png')
-        self.settings = RecipeBookSettings()
+        self.settings = TipsBookSettings()
 
     def create_cover_page(self):
         from classes.cover_page_generator import CoverPageGenerator
@@ -49,28 +49,28 @@ class BaseRecipebookGenerator(Book):
     def create_table_of_contents(self):
         pass
 
-    def create_recipe_page(self, recipe, page_number=1):
+    def create_tip_page(self, tip, page_number=1):
         if self.template == self.TEMPLATES[0]:
-            from classes.template1_recipebook_generator import Template1RecipebookGenerator
-            recipe_generator = Template1RecipebookGenerator(self.project_assets_path, self.book, self.template, self.width, self.height)
+            from classes.template1_tipsbook_generator import Template1TipsbookGenerator
+            tips_generator = Template1TipsbookGenerator(self.project_assets_path, self.book, self.template, self.width, self.height)
         elif self.template == self.TEMPLATES[1]:
-            from classes.template2_recipebook_generator import Template2RecipebookGenerator
-            recipe_generator = Template2RecipebookGenerator(self.project_assets_path, self.book, self.template, self.width, self.height)
+            from classes.template2_tipsbook_generator import Template2TipsbookGenerator
+            tips_generator = Template2TipsbookGenerator(self.project_assets_path, self.book, self.template, self.width, self.height)
         else:
             raise ValueError('Invalid template')
         
         image_prompt_default = self.settings.image_prompt_default
-        dish_placeholder = self.remove_symbols(recipe['name'])
+        dish_placeholder = self.remove_symbols(tip['name'])
         image_prompt_bottom = f'{self.settings.image_prompt_bottom_1} {dish_placeholder} {self.settings.image_prompt_bottom_2}'
 
         if self.template == self.TEMPLATES[0]:
-            title1 = self.remove_symbols(recipe['name']) + str(uuid.uuid4())
-            title2 = self.remove_symbols(recipe['name']) + str(uuid.uuid4())
-            image1_path = self.generate_images_pollynation_ai(image_prompt_default + title1, recipe['name'], self.project_images_path)
-            image2_path = self.generate_images_pollynation_ai(image_prompt_default + title2, recipe['name'], self.project_images_path)
-            recipe_generator.generate_page(image1_path, image2_path, self.stopwatch_path, recipe['name'], recipe['cooking_time'], recipe['ingredients'], recipe['instructions'], self.project_pages_path, page_number)
+            title1 = self.remove_symbols(tip['name']) + str(uuid.uuid4())
+            title2 = self.remove_symbols(tip['name']) + str(uuid.uuid4())
+            image1_path = self.generate_images_pollynation_ai(image_prompt_default + title1, tip['name'], self.project_images_path)
+            image2_path = self.generate_images_pollynation_ai(image_prompt_default + title2, tip['name'], self.project_images_path)
+            tips_generator.generate_page(image1_path, image2_path, tip['name'], tip['description'], tip['instructions'], self.project_pages_path, page_number)
         elif self.template == self.TEMPLATES[1]:
-            name_parts = recipe['name'].split()
+            name_parts = tip['name'].split()
             if len(name_parts) <= 3:
                 title1 = name_parts[0]
                 title2 = name_parts[-1]
@@ -80,10 +80,10 @@ class BaseRecipebookGenerator(Book):
             else:
                 title1 = ' '.join(name_parts[:-3])
                 title2 = ' '.join(name_parts[-3:])
-            image1_path = self.generate_images_pollynation_ai(image_prompt_default + self.remove_symbols(recipe['name']) + str(uuid.uuid4()), recipe['name'], self.project_images_path)
-            image2_path = self.generate_images_pollynation_ai(image_prompt_default + self.remove_symbols(recipe['name']) + str(uuid.uuid4()), recipe['name'], self.project_images_path)
-            image3_path = self.generate_images_pollynation_ai(image_prompt_bottom + str(uuid.uuid4()), recipe['name'], self.project_images_path)
-            recipe_generator.generate_page(image1_path, image2_path, image3_path, self.stopwatch_path, title1, title2, recipe['cooking_time'], recipe['ingredients'], recipe['instructions'], self.project_pages_path, page_number)
+            image1_path = self.generate_images_pollynation_ai(image_prompt_default + self.remove_symbols(tip['name']) + str(uuid.uuid4()), tip['name'], self.project_images_path)
+            image2_path = self.generate_images_pollynation_ai(image_prompt_default + self.remove_symbols(tip['name']) + str(uuid.uuid4()), tip['name'], self.project_images_path)
+            image3_path = self.generate_images_pollynation_ai(image_prompt_bottom + str(uuid.uuid4()), tip['name'], self.project_images_path)
+            tips_generator.generate_page(image1_path, image2_path, image3_path, title1, title2,  tip['description'], tip['instructions'], self.project_pages_path, page_number)
 
 
     def generate_images_pollynation_ai(self, prompt, title_original, save_path):
@@ -223,7 +223,7 @@ class BaseRecipebookGenerator(Book):
 
             pdf.image(image_path, x=x, y=y, w=display_w, h=display_h)
 
-        output_pdf_path = os.path.join(self.project_path, 'recipe_book.pdf')
+        output_pdf_path = os.path.join(self.project_path, 'tip_book.pdf')
         pdf.output(output_pdf_path)
         messagebox.showinfo("Info", f"PDF exported successfully to {output_pdf_path}")
 

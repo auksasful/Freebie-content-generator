@@ -1,9 +1,9 @@
 import os
 import uuid
 from PIL import Image, ImageDraw, ImageFont
-from classes.base import RecipeBook
+from classes.base import Book
 
-class CoverPageGenerator(RecipeBook):
+class CoverPageGenerator(Book):
 
     def __init__(self, project_folder, book, width=1000, height=1200):
         super().__init__(project_folder, book)
