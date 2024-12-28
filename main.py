@@ -57,9 +57,11 @@ def generate_book_page_images(project_name, book_name):
         for i, tip in enumerate(names['tips']):
             tip_text = book.open_json(book.DATA_LIST_FILE_PATH, tip['name'])
             tip_data = json.loads(tip_text[0])
-            print(f"{tip_data['name']} : {tip_data['description']}")
-            tipsbook_generator2.create_tip_page(tip_data, i + 1)
-            tipsbook_generator1.create_tip_page(tip_data, i + 1)
+            if 'name' in tip_data:
+                if tip_data['name']:
+                    print(f"{tip_data['name']} : {tip_data['description']}")
+                    tipsbook_generator2.create_tip_page(tip_data, i + 1)
+                    tipsbook_generator1.create_tip_page(tip_data, i + 1)
 
 def evaluate_book_pages(project_name, book_name):
     if project_name == "TipsBooks":

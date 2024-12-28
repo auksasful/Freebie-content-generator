@@ -73,25 +73,24 @@ class Template2TipsbookGenerator(Book):
                 self.Y_POSITION += 35
         
 
-    def add_description(self, draw, ingredients, subtitle_font, text_font, width, height):
+    def add_description(self, draw, description, subtitle_font, text_font, width, height):
         self.Y_POSITION = height // 2 - 120
-        draw.text((75, self.Y_POSITION), "INGREDIENTS", font=subtitle_font, fill="black")
+        draw.text((75, self.Y_POSITION), "DESCRIPTION", font=subtitle_font, fill="black")
         self.Y_POSITION += 40
         max_width = width // 4 + 15
-        for ingredient in ingredients:
-            words = ingredient.split()
-            lines = []
-            while words:
-                line = ''
-                while words and draw.textbbox((0, 0), line + words[0], font=text_font)[2] <= max_width:
-                    line += (words.pop(0) + ' ')
-                lines.append(line)
-            for line in lines:
-                draw.text((75, self.Y_POSITION), line, font=text_font, fill="black")
-                self.Y_POSITION += 30
+        words = description.split()
+        lines = []
+        while words:
+            line = ''
+            while words and draw.textbbox((0, 0), line + words[0], font=text_font)[2] <= max_width:
+                line += (words.pop(0) + ' ')
+            lines.append(line)
+        for line in lines:
+            draw.text((75, self.Y_POSITION), line, font=text_font, fill="black")
+            self.Y_POSITION += 30
 
     def add_instructions(self, draw, directions, subtitle_font, text_font, width, height):
-        draw.text((width // 2 - 50, height // 2 - 120), "DIRECTIONS", font=subtitle_font, fill="black")
+        draw.text((width // 2 - 50, height // 2 - 120), "INSTRUCTIONS", font=subtitle_font, fill="black")
         self.Y_POSITION = height // 2 - 80
         max_width = width // 2 + 20
         for i, direction in enumerate(directions):

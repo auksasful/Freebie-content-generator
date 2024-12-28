@@ -58,7 +58,7 @@ class Template1TipsbookGenerator(Book):
 
     def add_description(self, draw, description, subtitle_font, text_font, width):
         self.RIGHT_Y_POSITION += 10
-        draw.text((3 * width // 4 - 180, self.RIGHT_Y_POSITION), "INGREDIENTS", font=subtitle_font, fill="black")
+        draw.text((3 * width // 4 - 180, self.RIGHT_Y_POSITION), "DESCRIPTION", font=subtitle_font, fill="black")
         self.RIGHT_Y_POSITION += 35
         max_width = width // 2 - 30
         words = description.split()
@@ -73,7 +73,7 @@ class Template1TipsbookGenerator(Book):
             self.RIGHT_Y_POSITION += 30
 
     def add_instructions(self, draw, directions, subtitle_font, text_font, width, height):
-        draw.text((20, height - 590), "DIRECTIONS", font=subtitle_font, fill="black")
+        draw.text((20, height - 590), "INSTRUCTIONS", font=subtitle_font, fill="black")
         y_position = height - 540
         max_width = width // 2 - 20
         for i, direction in enumerate(directions):
