@@ -1,6 +1,3 @@
-# https://pollinations.ai/
-# https://image.pollinations.ai/prompt/Lemon-Berry-Blitz-Breakfast
-# https://www.desktophut.com/page/free-ai-image-generator
 
 import json
 import os
@@ -17,13 +14,13 @@ import uuid
 from classes.settings import RecipeBookSettings, TipsBookSettings
 
 
-def generate_titles(writer, prompt, project_name):
+def generate_titles(writer, prompt, project_name, api_key):
     if project_name == "RecipeBooks":
-        writer.write_recipe_titles_using_AI(prompt)
+        writer.write_recipe_titles_using_AI(prompt, api_key=api_key)
     elif project_name == "TipsBooks":
-        writer.write_tip_titles_using_AI(prompt)
+        writer.write_tip_titles_using_AI(prompt, api_key=api_key)
 
-def generate_data(writer, system_prompt, prompt_1, prompt_2, project_name):
+def generate_data(writer, system_prompt, prompt_1, prompt_2, project_name, api_key):
     book = Book(project_name, book_name)
     names = book.open_json(Book.NAMES_FILE_PATH)
     names = json.loads(names[0])
@@ -33,9 +30,9 @@ def generate_data(writer, system_prompt, prompt_1, prompt_2, project_name):
         iterate_through = names['tips']
     for name in iterate_through:
         if project_name == "RecipeBooks":
-            writer.write_recipe_using_AI(f"{prompt_1} {name['name']} {prompt_2}", system_prompt, name['name'])
+            writer.write_recipe_using_AI(f"{prompt_1} {name['name']} {prompt_2}", system_prompt, name['name'], api_key=api_key)
         elif project_name == "TipsBooks":
-            writer.write_tip_using_AI(f"{prompt_1} {name['name']} {prompt_2}", system_prompt, name['name'])
+            writer.write_tip_using_AI(f"{prompt_1} {name['name']} {prompt_2}", system_prompt, name['name'], api_key=api_key)
         time.sleep(10)
         
 def generate_book_page_images(project_name, book_name):
@@ -91,9 +88,10 @@ if __name__ == "__main__":
     print("Hello, welcome to the Freebie Content Generator!")
 
     ### CHANGE THIS TO YOUR BOOK NAME
-    book_name = "Easy Photo Editing Tips"
+    book_name = "Cyber Security Tips"
     project_name = "TipsBooks"
     # project_name = "RecipeBooks"
+    api_key = os.getenv('GOOGLE_API_KEY') # Define your Gemini API key as an environment variable (recommended) or just replace this with your API key (not recommended)
     ### CHANGE THIS TO YOUR BOOK NAME
 
     writer = Writer(project_name, book_name)
@@ -119,9 +117,9 @@ if __name__ == "__main__":
         
         if choice == '1':
             title_prompt = settings.titles_prompt_1 + book_name + settings.titles_prompt_2
-            generate_titles(writer, title_prompt, project_name)
+            generate_titles(writer, title_prompt, project_name, api_key=api_key)
         elif choice == '2':
-            generate_data(writer, system_prompt, settings.generation_prompt_1, settings.generation_prompt_2, project_name)
+            generate_data(writer, system_prompt, settings.generation_prompt_1, settings.generation_prompt_2, project_name, api_key=api_key)
         elif choice == '3':
             generate_book_page_images(project_name, book_name)
         elif choice == '4':

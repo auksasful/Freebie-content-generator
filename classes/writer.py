@@ -7,6 +7,7 @@ from entities.tip import Tip
 import google.generativeai as genai
 import json
 import os
+import re
 
 
 class Writer(Book):
@@ -14,8 +15,7 @@ class Writer(Book):
     def __init__(self, project_folder, book) -> None:
         super().__init__(project_folder, book)
     
-    def write_recipe_titles_using_AI(self, prompt):
-        api_key = os.getenv('GOOGLE_API_KEY')
+    def write_recipe_titles_using_AI(self, prompt, api_key):
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel(model_name='gemini-1.5-flash')
         response = model.generate_content(prompt)
@@ -34,19 +34,17 @@ class Writer(Book):
             # If parsing fails, print the error and the raw response text
             print(f"Error decoding JSON: {e}")
             print(f"Raw response text: {response.text}")
+            recipe_names = json.loads(response.text)
+            # Extract the recipe names and sanitize each one
+            for recipe in recipe_names['recipes']:
+                sanitized_name = re.sub(r'[<>:"/\\|?*]', '_', recipe['name'])
+                recipe['name'] = sanitized_name
+                self.initialize_page(sanitized_name)
+            # Write to file after all pages have been initialized
+            self.write_json(json.dumps(recipe_names), self.NAMES_FILE_PATH)  # return response.text
 
-        self.write_json(response.text, self.NAMES_FILE_PATH)
-        # recipe_names = self.open_json(self.RECIPE_NAMES_FILE_PATH)
-        recipe_names = json.loads(response.text)
-        # Extract the recipe names and print each one 
-        for recipe in recipe_names['recipes']:
-            # print(recipe['name'])
-            self.initialize_page(recipe['name'])
-        # return response.text
 
-
-    def write_recipe_using_AI(self, prompt, system_prompt, page):
-        api_key = os.getenv('GOOGLE_API_KEY')
+    def write_recipe_using_AI(self, prompt, system_prompt, page, api_key):
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel(model_name='gemini-1.5-flash') #, system_instruction=system_prompt)
         response = model.generate_content(prompt)
@@ -70,8 +68,7 @@ class Writer(Book):
 
 
 
-    def write_tip_titles_using_AI(self, prompt):
-        api_key = os.getenv('GOOGLE_API_KEY')
+    def write_tip_titles_using_AI(self, prompt, api_key):
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel(model_name='gemini-1.5-flash')
         response = model.generate_content(prompt)
@@ -91,18 +88,17 @@ class Writer(Book):
             print(f"Error decoding JSON: {e}")
             print(f"Raw response text: {response.text}")
 
-        self.write_json(response.text, self.NAMES_FILE_PATH)
-        # recipe_names = self.open_json(self.RECIPE_NAMES_FILE_PATH)
         tip_names = json.loads(response.text)
-        # Extract the recipe names and print each one 
+        # Extract the tip names and sanitize each one
         for tip in tip_names['tips']:
-            # print(recipe['name'])
-            self.initialize_page(tip['name'])
-        # return response.text
+            sanitized_name = re.sub(r'[<>:"/\\|?*]', '_', tip['name'])
+            tip['name'] = sanitized_name
+            self.initialize_page(sanitized_name)
+        # Write to file after all pages have been initialized
+        self.write_json(json.dumps(tip_names), self.NAMES_FILE_PATH)  # return response.text
 
 
-    def write_tip_using_AI(self, prompt, system_prompt, page):
-        api_key = os.getenv('GOOGLE_API_KEY')
+    def write_tip_using_AI(self, prompt, system_prompt, page, api_key):
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel(model_name='gemini-1.5-flash') #, system_instruction=system_prompt)
         response = model.generate_content(prompt)

@@ -80,7 +80,10 @@ class CoverPageGenerator(Book):
                 pixels[px, py] = (tr, tg, tb)
 
     def define_fonts(self):
-        title_font = ImageFont.truetype("brushscript.ttf", 60)
-        subtitle_font = ImageFont.truetype("georgia.ttf", 40)
-        author_font = ImageFont.truetype("arial.ttf", 30)
+        title_font_path = os.path.join(self.FONTS_PATH, "brushscript.ttf")
+        subtitle_font_path = os.path.join(self.FONTS_PATH, "georgia.ttf")
+        author_font_path = os.path.join(self.FONTS_PATH, "arial.ttf")
+        title_font = ImageFont.truetype(title_font_path, 60)
+        subtitle_font = ImageFont.truetype(subtitle_font_path, 40)
+        author_font = ImageFont.truetype(author_font_path, 30)
         return title_font, subtitle_font, author_font

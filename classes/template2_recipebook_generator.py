@@ -43,10 +43,13 @@ class Template2RecipebookGenerator(Book):
         return new_image, draw
 
     def define_fonts(self):
-        title_font = ImageFont.truetype("brushscript.ttf", 60)
-        title2_font = ImageFont.truetype("brushscript.ttf", 40)
-        subtitle_font = ImageFont.truetype("georgia.ttf", 30)
-        text_font = ImageFont.truetype("arial.ttf", 20)
+        title_font_path = os.path.join(self.FONTS_PATH, "brushscript.ttf")
+        subtitle_font_path = os.path.join(self.FONTS_PATH, "georgia.ttf")
+        text_font_path = os.path.join(self.FONTS_PATH, "arial.ttf")
+        title_font = ImageFont.truetype(title_font_path, 60)
+        title2_font = ImageFont.truetype(title_font_path, 40)
+        subtitle_font = ImageFont.truetype(subtitle_font_path, 30)
+        text_font = ImageFont.truetype(text_font_path, 20)
         return title_font, title2_font, subtitle_font, text_font
 
     def add_title(self, draw, title, title2, title_font, title2_font, width):

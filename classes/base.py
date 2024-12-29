@@ -9,6 +9,8 @@ class Book:
     GENERATOR_MODE_1 = 'template_1'
     GENERATOR_MODE_2 = 'template_2'
 
+    FONTS_PATH = 'common_assets/fonts'
+
 
     def __init__(self, project_folder, book) -> None:
         self.book = book
