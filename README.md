@@ -49,6 +49,11 @@ Then you should enter numbers one after another, starting from 1 (titles generat
 
 This takes a while to finish, especially the book page images.
 
+## Class structure
+You can refer to the class structure diagram in the `structure.png` file located in the same repository.
+
+![Class Structure](./structure.png)
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first
