@@ -88,8 +88,8 @@ if __name__ == "__main__":
     print("Hello, welcome to the Freebie Content Generator!")
 
     ### CHANGE THIS TO YOUR BOOK NAME
-    book_name = "Cyber Security Tips"
-    project_name = "TipsBooks"
+    book_name = "Healthy Breakfast Recipes"
+    project_name = "RecipeBooks"
     # project_name = "RecipeBooks"
     api_key = os.getenv('GOOGLE_API_KEY') # Define your Gemini API key as an environment variable (recommended) or just replace this with your API key (not recommended)
     ### CHANGE THIS TO YOUR BOOK NAME

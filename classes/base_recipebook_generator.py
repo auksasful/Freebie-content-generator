@@ -143,6 +143,13 @@ class BaseRecipebookGenerator(Book):
             pdf.set_text_color(0, 0, 255)
             pdf.cell(0, 10, url, 0, 1, 'C', link=url)
 
+        def add_page_number(pdf, page_num, page_number_y):
+            pdf.set_y(page_number_y)
+            pdf.set_font("Arial", size=8)
+            pdf.set_text_color(0, 0, 0)
+            pdf.cell(0, 10, f'{page_num}', 0, 0, 'R')
+
+
         # Initialize PDF
         pdf = FPDF()
         liked_images_folder = os.path.join(self.project_pages_path, 'liked_images')
@@ -222,6 +229,11 @@ class BaseRecipebookGenerator(Book):
             y = top_margin + url_h + ((max_h - display_h) / 2)
 
             pdf.image(image_path, x=x, y=y, w=display_w, h=display_h)
+
+            # Add page number if not the first page
+            if idx != 0:
+                page_number_y = top_margin
+                add_page_number(pdf, idx + 1, page_number_y)
 
         output_pdf_path = os.path.join(self.project_path, 'recipe_book.pdf')
         pdf.output(output_pdf_path)
